@@ -11,16 +11,23 @@ class NotificationService {
   Function(String)? onNotificationTap;
 
   Future<void> initialize() async {
-    // Request permission for iOS
+    // Request permission for iOS and Android 13+
     await _requestPermission();
 
     // Initialize local notifications
     await _initializeLocalNotifications();
 
+    // Configure FCM to handle background messages
+    await _firebaseMessaging.setForegroundNotificationPresentationOptions(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
+
     // Get FCM token
     final token = await _firebaseMessaging.getToken();
     print('FCM Token: $token');
-    // TODO: Send this token to your backend to associate with user
+    // Token is automatically used when subscribing to topics
 
     // Handle foreground messages
     FirebaseMessaging.onMessage.listen(_handleForegroundMessage);
@@ -149,10 +156,4 @@ class NotificationService {
   Future<void> unsubscribeFromTopic(String topic) async {
     await _firebaseMessaging.unsubscribeFromTopic(topic);
   }
-}
-
-// Background message handler (must be top-level function)
-@pragma('vm:entry-point')
-Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  print('Handling background message: ${message.messageId}');
 }

@@ -1,6 +1,9 @@
 class ApiConfig {
-  // Replace this with your actual API Gateway URL after deployment
-  static const String baseUrl = 'https://25sm56ym2c.execute-api.us-east-1.amazonaws.com/prod';
+  // API Gateway URL - set via --dart-define or flutter run --dart-define-from-file
+  static const String baseUrl = String.fromEnvironment(
+    'API_BASE_URL',
+    defaultValue: 'https://25sm56ym2c.execute-api.us-east-1.amazonaws.com/prod',
+  );
   
   // API Endpoints
   static const String currentPriceEndpoint = '/currentPrice';

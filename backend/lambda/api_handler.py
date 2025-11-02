@@ -48,29 +48,36 @@ def get_current_price():
         
         client.close()
         
-        if not price or not signal:
+        if not price:
             return {
                 'statusCode': 404,
                 'headers': cors_headers(),
-                'body': json.dumps({'message': 'No data available'})
+                'body': json.dumps({'message': 'No price data available'})
             }
+        
+        # Build response - signal can be null if not generated yet
+        response_data = {
+            'price': {
+                'timestamp': price['timestamp'].isoformat(),
+                'price': price['price']
+            }
+        }
+        
+        if signal:
+            response_data['signal'] = {
+                '_id': str(signal['_id']),
+                'timestamp': signal['timestamp'].isoformat(),
+                'type': signal['type'],
+                'price': signal['price'],
+                'confidence': signal['confidence']
+            }
+        else:
+            response_data['signal'] = None
         
         return {
             'statusCode': 200,
             'headers': cors_headers(),
-            'body': json.dumps({
-                'price': {
-                    'timestamp': price['timestamp'].isoformat(),
-                    'price': price['price']
-                },
-                'signal': {
-                    '_id': str(signal['_id']),
-                    'timestamp': signal['timestamp'].isoformat(),
-                    'type': signal['type'],
-                    'price': signal['price'],
-                    'confidence': signal['confidence']
-                }
-            }, default=str)
+            'body': json.dumps(response_data, default=str)
         }
     except Exception as e:
         print(f"Error in get_current_price: {e}")
@@ -199,10 +206,13 @@ def lambda_handler(event, context):
                 'body': ''
             }
         
-        # Get the route
-        path = event.get('path', '')
+        # Get the route - try multiple path sources
+        path = event.get('resource') or event.get('path', '')
+        path = path.replace('/prod', '').replace('/test-invoke-stage', '')
         method = event.get('httpMethod', 'GET')
         query_params = event.get('queryStringParameters') or {}
+        
+        print(f"Path: {path}, Method: {method}, Event: {json.dumps(event)}")  # Debug logging
         
         # Route requests
         if path == '/currentPrice' and method == 'GET':
@@ -227,7 +237,13 @@ def lambda_handler(event, context):
             return {
                 'statusCode': 404,
                 'headers': cors_headers(),
-                'body': json.dumps({'message': 'Endpoint not found'})
+                'body': json.dumps({
+                    'message': 'Endpoint not found',
+                    'path': path,
+                    'method': method,
+                    'resource': event.get('resource'),
+                    'rawPath': event.get('path')
+                })
             }
     
     except Exception as e:

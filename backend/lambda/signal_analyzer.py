@@ -7,6 +7,7 @@ and sends notifications via FCM
 import json
 import os
 from datetime import datetime, timedelta
+import pytz
 from pymongo import MongoClient
 import boto3
 import firebase_admin
@@ -47,8 +48,13 @@ def get_recent_prices(minutes=30):
         db = client['bitcoin_watcher']
         collection = db['btc_prices']
         
-        # Get prices from last N minutes
-        cutoff_time = datetime.utcnow() - timedelta(minutes=minutes)
+        # Get current time in Sri Lanka timezone
+        sri_lanka_tz = pytz.timezone('Asia/Colombo')
+        sri_lanka_now = datetime.now(sri_lanka_tz)
+        
+        # Remove timezone for MongoDB query (since we store naive datetimes)
+        sri_lanka_naive = sri_lanka_now.replace(tzinfo=None)
+        cutoff_time = sri_lanka_naive - timedelta(minutes=minutes)
         
         prices = list(collection.find(
             {'timestamp': {'$gte': cutoff_time}},
@@ -129,8 +135,15 @@ def store_signal(signal_data):
         db = client['bitcoin_watcher']
         collection = db['signals']
         
+        # Get Sri Lanka time
+        sri_lanka_tz = pytz.timezone('Asia/Colombo')
+        sri_lanka_time = datetime.now(sri_lanka_tz)
+        
+        # Remove timezone info so MongoDB stores the actual Sri Lanka time
+        sri_lanka_naive = sri_lanka_time.replace(tzinfo=None)
+        
         document = {
-            'timestamp': datetime.utcnow(),
+            'timestamp': sri_lanka_naive,
             'type': signal_data['type'],
             'price': signal_data['price'],
             'confidence': signal_data['confidence']
@@ -181,8 +194,15 @@ def send_notification(signal_data, signal_id):
         db = client['bitcoin_watcher']
         collection = db['notifications']
         
+        # Get Sri Lanka time
+        sri_lanka_tz = pytz.timezone('Asia/Colombo')
+        sri_lanka_time = datetime.now(sri_lanka_tz)
+        
+        # Remove timezone info so MongoDB stores the actual Sri Lanka time
+        sri_lanka_naive = sri_lanka_time.replace(tzinfo=None)
+        
         notification_doc = {
-            'timestamp': datetime.utcnow(),
+            'timestamp': sri_lanka_naive,
             'signal_id': signal_id,
             'title': title,
             'message': body,

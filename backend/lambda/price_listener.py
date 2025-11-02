@@ -6,6 +6,7 @@ Fetches real-time BTC price from Binance API and stores in MongoDB
 import json
 import os
 from datetime import datetime
+import pytz
 import requests
 from pymongo import MongoClient
 import boto3
@@ -49,8 +50,16 @@ def store_price(price):
         db = client['bitcoin_watcher']
         collection = db['btc_prices']
         
+        # Convert UTC to Sri Lanka time (Asia/Colombo = UTC+5:30)
+        utc_now = datetime.utcnow().replace(tzinfo=pytz.UTC)
+        sri_lanka_tz = pytz.timezone('Asia/Colombo')
+        sri_lanka_time = utc_now.astimezone(sri_lanka_tz)
+        
+        # Remove timezone info so MongoDB stores the actual Sri Lanka time
+        sri_lanka_naive = sri_lanka_time.replace(tzinfo=None)
+        
         document = {
-            'timestamp': datetime.utcnow(),
+            'timestamp': sri_lanka_naive,
             'price': price
         }
         
@@ -72,12 +81,16 @@ def lambda_handler(event, context):
         # Store in MongoDB
         store_price(price)
         
+        # Get Sri Lanka time for response
+        utc_now = datetime.utcnow().replace(tzinfo=pytz.UTC)
+        sri_lanka_time = utc_now.astimezone(pytz.timezone('Asia/Colombo'))
+        
         return {
             'statusCode': 200,
             'body': json.dumps({
                 'message': 'Price stored successfully',
                 'price': price,
-                'timestamp': datetime.utcnow().isoformat()
+                'timestamp': sri_lanka_time.isoformat()
             })
         }
     except Exception as e:

@@ -19,7 +19,7 @@ class BitcoinService {
       final response = await _apiClient.get(ApiConfig.currentPriceEndpoint);
       return {
         'price': BtcPrice.fromJson(response['price']),
-        'signal': Signal.fromJson(response['signal']),
+        'signal': response['signal'] != null ? Signal.fromJson(response['signal']) : null,
       };
     } catch (e) {
       throw ApiException('Failed to fetch current price: $e');

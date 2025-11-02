@@ -19,7 +19,7 @@ dependencies:
   # Firebase & Notifications
   firebase_core: ^2.24.2
   firebase_messaging: ^14.7.9
-  flutter_local_notifications: ^16.3.0
+  flutter_local_notifications: ^17.0.0
   
   # Charts & Visualization
   fl_chart: ^0.65.0

@@ -19,11 +19,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _isLoading = true;
   bool _isSaving = false;
   
-  late bool _notificationsEnabled;
-  late double _buyThreshold;
-  late double _sellThreshold;
-  late int _shortMaPeriod;
-  late int _longMaPeriod;
+  bool _notificationsEnabled = true;
+  double _buyThreshold = 0.005;
+  double _sellThreshold = 0.005;
+  int _shortMaPeriod = 7;
+  int _longMaPeriod = 21;
 
   @override
   void initState() {

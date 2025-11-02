@@ -256,17 +256,37 @@ class _HomeScreenState extends State<HomeScreen> {
 
     final minPrice = _priceHistory.map((p) => p.price).reduce((a, b) => a < b ? a : b);
     final maxPrice = _priceHistory.map((p) => p.price).reduce((a, b) => a > b ? a : b);
+    
+    // Add padding to price range for better visualization
+    final priceRange = maxPrice - minPrice;
+    final padding = priceRange > 0 ? priceRange * 0.1 : maxPrice * 0.01;
+    final chartMinY = minPrice - padding;
+    final chartMaxY = maxPrice + padding;
+    
+    // Calculate intervals
+    final displayRange = chartMaxY - chartMinY;
+    final horizontalInterval = displayRange / 5;
+    
+    // Show only 5-6 time labels evenly distributed
+    final timeInterval = _priceHistory.length > 5 ? (_priceHistory.length / 5).floorToDouble() : 1.0;
 
     return LineChart(
       LineChartData(
         gridData: FlGridData(
           show: true,
-          drawVerticalLine: false,
-          horizontalInterval: (maxPrice - minPrice) / 4,
+          drawVerticalLine: true,
+          horizontalInterval: horizontalInterval,
+          verticalInterval: timeInterval,
           getDrawingHorizontalLine: (value) {
             return FlLine(
-              color: AppColors.chartGrid,
-              strokeWidth: 0.5,
+              color: AppColors.chartGrid.withOpacity(0.3),
+              strokeWidth: 0.8,
+            );
+          },
+          getDrawingVerticalLine: (value) {
+            return FlLine(
+              color: AppColors.chartGrid.withOpacity(0.2),
+              strokeWidth: 0.8,
             );
           },
         ),
@@ -281,16 +301,17 @@ class _HomeScreenState extends State<HomeScreen> {
           bottomTitles: AxisTitles(
             sideTitles: SideTitles(
               showTitles: true,
-              reservedSize: 30,
-              interval: spots.length / 4,
+              reservedSize: 32,
+              interval: timeInterval,
               getTitlesWidget: (value, meta) {
-                if (value.toInt() >= _priceHistory.length) return const Text('');
-                final time = _priceHistory[value.toInt()].timestamp;
+                final index = value.toInt();
+                if (index < 0 || index >= _priceHistory.length) return const SizedBox();
+                final time = _priceHistory[index].timestamp;
                 return Padding(
                   padding: const EdgeInsets.only(top: 8.0),
                   child: Text(
                     Formatters.formatTime(time),
-                    style: Theme.of(context).textTheme.bodySmall,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 10),
                   ),
                 );
               },
@@ -299,32 +320,97 @@ class _HomeScreenState extends State<HomeScreen> {
           leftTitles: AxisTitles(
             sideTitles: SideTitles(
               showTitles: true,
-              reservedSize: 50,
+              reservedSize: 60,
+              interval: horizontalInterval,
               getTitlesWidget: (value, meta) {
-                return Text(
-                  Formatters.formatCompact(value),
-                  style: Theme.of(context).textTheme.bodySmall,
+                // Format price with K suffix
+                final priceK = value / 1000;
+                return Padding(
+                  padding: const EdgeInsets.only(right: 4.0),
+                  child: Text(
+                    '\$${priceK.toStringAsFixed(1)}K',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 10),
+                    textAlign: TextAlign.right,
+                  ),
                 );
               },
             ),
           ),
         ),
-        borderData: FlBorderData(show: false),
+        borderData: FlBorderData(
+          show: true,
+          border: Border.all(
+            color: AppColors.chartGrid.withOpacity(0.3),
+            width: 1,
+          ),
+        ),
         minX: 0,
         maxX: spots.length - 1.0,
-        minY: minPrice * 0.999,
-        maxY: maxPrice * 1.001,
+        minY: chartMinY,
+        maxY: chartMaxY,
+        lineTouchData: LineTouchData(
+          enabled: true,
+          touchTooltipData: LineTouchTooltipData(
+            getTooltipItems: (touchedSpots) {
+              return touchedSpots.map((spot) {
+                final index = spot.x.toInt();
+                if (index >= 0 && index < _priceHistory.length) {
+                  final priceData = _priceHistory[index];
+                  return LineTooltipItem(
+                    '${Formatters.formatPrice(priceData.price)}\n${Formatters.formatTime(priceData.timestamp)}',
+                    TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                    ),
+                  );
+                }
+                return null;
+              }).toList();
+            },
+          ),
+          handleBuiltInTouches: true,
+          getTouchedSpotIndicator: (barData, spotIndexes) {
+            return spotIndexes.map((index) {
+              return TouchedSpotIndicatorData(
+                FlLine(
+                  color: AppColors.primary,
+                  strokeWidth: 2,
+                ),
+                FlDotData(
+                  show: true,
+                  getDotPainter: (spot, percent, barData, index) {
+                    return FlDotCirclePainter(
+                      radius: 6,
+                      color: AppColors.primary,
+                      strokeWidth: 2,
+                      strokeColor: Colors.white,
+                    );
+                  },
+                ),
+              );
+            }).toList();
+          },
+        ),
         lineBarsData: [
           LineChartBarData(
             spots: spots,
             isCurved: true,
+            curveSmoothness: 0.3,
             color: AppColors.chartLine,
-            barWidth: 2,
+            barWidth: 3,
             isStrokeCapRound: true,
             dotData: const FlDotData(show: false),
             belowBarData: BarAreaData(
               show: true,
-              color: AppColors.chartLine.withOpacity(0.1),
+              gradient: LinearGradient(
+                colors: [
+                  AppColors.chartLine.withOpacity(0.3),
+                  AppColors.chartLine.withOpacity(0.0),
+                ],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
             ),
           ),
         ],
