@@ -1,0 +1,111 @@
+# .gitignore for Bitcoin Watcher
+
+# Flutter
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+build/
+ios/Flutter/flutter_export_environment.sh
+.flutter-plugins
+.flutter-plugins-dependencies
+
+# Android
+android/.gradle
+android/captures/
+android/gradlew
+android/gradlew.bat
+android/local.properties
+android/.idea/
+android/**/*.iml
+android/**/*.class
+android/**/*.log
+android/**/*.pyc
+android/**/*.swp
+android/**/.DS_Store
+android/**/.atom/
+android/**/.buildlog/
+android/**/.history
+android/**/.svn/
+android/app/google-services.json
+
+# iOS
+ios/**/*.mode1v3
+ios/**/*.mode2v3
+ios/**/*.moved-aside
+ios/**/*.pbxuser
+ios/**/*.perspectivev3
+ios/**/*sync/
+ios/**/.sconsign.dblite
+ios/**/.tags*
+ios/**/.vagrant/
+ios/**/.DS_Store
+ios/Flutter/App.framework
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+ios/Flutter/Generated.xcconfig
+ios/Flutter/ephemeral/
+ios/Flutter/flutter_export_environment.sh
+ios/Pods/
+ios/Runner/GoogleService-Info.plist
+ios/.symlinks/
+ios/**/profile
+ios/**/xcuserdata/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+backend/packages/
+*.egg-info/
+dist/
+*.zip
+
+# AWS
+lambda-trust-policy.json
+lambda-policy.json
+
+# Secrets & Credentials
+*.pem
+*.key
+.env
+.env.local
+firebase-adminsdk-*.json
+google-services.json
+GoogleService-Info.plist
+
+# MongoDB
+mongo-data/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.settings/
+.classpath
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Misc
+*.iml
+.gradle
+local.properties

@@ -1,0 +1,10 @@
+# Place your Firebase google-services.json file here
+# Download it from Firebase Console:
+# 1. Go to https://console.firebase.google.com/
+# 2. Select your project
+# 3. Go to Project Settings
+# 4. Under "Your apps", select your Android app
+# 5. Download google-services.json
+# 6. Place it in android/app/ directory
+
+# This file should NOT be committed to version control

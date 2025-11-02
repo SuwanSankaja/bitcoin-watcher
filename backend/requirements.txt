@@ -1,0 +1,5 @@
+boto3==1.34.34
+pymongo==4.6.1
+requests==2.31.0
+firebase-admin==6.4.0
+websocket-client==1.7.0
