@@ -50,7 +50,17 @@ class _HistoryScreenState extends State<HistoryScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Signal History'),
+        title: Row(
+          children: [
+            Image.asset(
+              'assets/images/bitcoin-watcher-logo.png',
+              height: 32,
+              width: 32,
+            ),
+            const SizedBox(width: 12),
+            const Text('Signal History'),
+          ],
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),

@@ -168,32 +168,97 @@ def get_signal_history(limit=50):
         }
 
 def get_settings():
-    """Get user settings (default values for now)"""
-    return {
-        'statusCode': 200,
-        'headers': cors_headers(),
-        'body': json.dumps({
-            'settings': {
-                'notifications_enabled': True,
-                'buy_threshold': 0.005,
-                'sell_threshold': 0.005,
-                'short_ma_period': 7,
-                'long_ma_period': 21
-            }
-        })
-    }
+    """Get user settings from MongoDB or return defaults"""
+    try:
+        client = get_mongo_client()
+        db = client['bitcoin_watcher']
+        collection = db['settings']
+        
+        # Get settings (we'll use a single document with _id='default')
+        settings_doc = collection.find_one({'_id': 'default'})
+        
+        client.close()
+        
+        # Default settings
+        default_settings = {
+            'notifications_enabled': True,
+            'buy_threshold': 0.005,
+            'sell_threshold': 0.005,
+            'short_ma_period': 7,
+            'long_ma_period': 21
+        }
+        
+        if settings_doc:
+            # Merge stored settings with defaults (in case new settings added)
+            default_settings.update(settings_doc.get('settings', {}))
+        
+        return {
+            'statusCode': 200,
+            'headers': cors_headers(),
+            'body': json.dumps({'settings': default_settings})
+        }
+    except Exception as e:
+        print(f"Error in get_settings: {e}")
+        # Return defaults if error
+        return {
+            'statusCode': 200,
+            'headers': cors_headers(),
+            'body': json.dumps({
+                'settings': {
+                    'notifications_enabled': True,
+                    'buy_threshold': 0.005,
+                    'sell_threshold': 0.005,
+                    'short_ma_period': 7,
+                    'long_ma_period': 21
+                }
+            })
+        }
 
 def update_settings(body):
-    """Update user settings"""
-    # For now, just acknowledge the update
-    # In production, you'd store these in a settings collection
-    return {
-        'statusCode': 200,
-        'headers': cors_headers(),
-        'body': json.dumps({
-            'message': 'Settings updated successfully'
-        })
-    }
+    """Update user settings in MongoDB"""
+    try:
+        client = get_mongo_client()
+        db = client['bitcoin_watcher']
+        collection = db['settings']
+        
+        # Extract settings from body
+        settings = {
+            'notifications_enabled': body.get('notifications_enabled', True),
+            'buy_threshold': float(body.get('buy_threshold', 0.005)),
+            'sell_threshold': float(body.get('sell_threshold', 0.005)),
+            'short_ma_period': int(body.get('short_ma_period', 7)),
+            'long_ma_period': int(body.get('long_ma_period', 21))
+        }
+        
+        # Upsert settings (update if exists, insert if not)
+        collection.update_one(
+            {'_id': 'default'},
+            {'$set': {'settings': settings, 'updated_at': datetime.utcnow()}},
+            upsert=True
+        )
+        
+        client.close()
+        
+        print(f"Settings updated: {settings}")
+        
+        return {
+            'statusCode': 200,
+            'headers': cors_headers(),
+            'body': json.dumps({
+                'message': 'Settings updated successfully',
+                'settings': settings
+            })
+        }
+    except Exception as e:
+        print(f"Error in update_settings: {e}")
+        return {
+            'statusCode': 500,
+            'headers': cors_headers(),
+            'body': json.dumps({
+                'message': 'Failed to update settings',
+                'error': str(e)
+            })
+        }
 
 def lambda_handler(event, context):
     """Main Lambda handler for API Gateway"""

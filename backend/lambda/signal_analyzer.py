@@ -41,6 +41,38 @@ def get_mongo_client():
     
     return MongoClient(mongo_uri)
 
+def get_settings_from_db():
+    """Fetch settings from MongoDB, return defaults if not found"""
+    default_settings = {
+        'notifications_enabled': True,
+        'buy_threshold': 0.005,
+        'sell_threshold': 0.005,
+        'short_ma_period': 7,
+        'long_ma_period': 21
+    }
+    
+    try:
+        client = get_mongo_client()
+        db = client['bitcoin_watcher']
+        collection = db['settings']
+        
+        settings_doc = collection.find_one({'_id': 'default'})
+        client.close()
+        
+        if settings_doc and 'settings' in settings_doc:
+            # Merge stored settings with defaults
+            merged_settings = default_settings.copy()
+            merged_settings.update(settings_doc['settings'])
+            print(f"Using settings from MongoDB: {merged_settings}")
+            return merged_settings
+        else:
+            print("No settings found in MongoDB, using defaults")
+            return default_settings
+    except Exception as e:
+        print(f"Error fetching settings from MongoDB: {e}")
+        print("Falling back to default settings")
+        return default_settings
+
 def get_recent_prices(minutes=30):
     """Fetch recent prices from MongoDB"""
     try:
@@ -221,6 +253,10 @@ def send_notification(signal_data, signal_id):
 def lambda_handler(event, context):
     """Main Lambda handler"""
     try:
+        # Get settings from MongoDB
+        settings = get_settings_from_db()
+        print(f"Using MA periods: {settings['short_ma_period']}/{settings['long_ma_period']}, Thresholds: {settings['buy_threshold']}/{settings['sell_threshold']}")
+        
         # Fetch recent prices
         prices = get_recent_prices(minutes=30)
         
@@ -230,8 +266,14 @@ def lambda_handler(event, context):
                 'body': json.dumps({'message': 'No prices available'})
             }
         
-        # Analyze and generate signal
-        signal_data = analyze_signal(prices)
+        # Analyze and generate signal with dynamic settings
+        signal_data = analyze_signal(
+            prices,
+            short_period=settings['short_ma_period'],
+            long_period=settings['long_ma_period'],
+            buy_threshold=settings['buy_threshold'],
+            sell_threshold=settings['sell_threshold']
+        )
         
         # Get last signal to check if it changed
         last_signal = get_last_signal()
@@ -239,14 +281,18 @@ def lambda_handler(event, context):
         # Store current signal
         signal_id = store_signal(signal_data)
         
-        # Send notification only if signal changed and it's BUY or SELL
+        # Send notification only if enabled, signal changed, and it's BUY or SELL
         should_notify = (
+            settings['notifications_enabled'] and
             signal_data['type'] in ['BUY', 'SELL'] and
             (last_signal is None or last_signal.get('type') != signal_data['type'])
         )
         
         if should_notify:
             send_notification(signal_data, signal_id)
+            print(f"Notification sent for {signal_data['type']} signal")
+        elif not settings['notifications_enabled']:
+            print("Notifications disabled in settings")
         
         return {
             'statusCode': 200,

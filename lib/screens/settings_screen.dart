@@ -130,7 +130,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Settings'),
+        title: Row(
+          children: [
+            Image.asset(
+              'assets/images/bitcoin-watcher-logo.png',
+              height: 32,
+              width: 32,
+            ),
+            const SizedBox(width: 12),
+            const Text('Settings'),
+          ],
+        ),
         actions: [
           if (_hasChanges())
             TextButton(

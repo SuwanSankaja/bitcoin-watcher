@@ -66,7 +66,17 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Bitcoin Watcher'),
+        title: Row(
+          children: [
+            Image.asset(
+              'assets/images/bitcoin-watcher-logo.png',
+              height: 32,
+              width: 32,
+            ),
+            const SizedBox(width: 12),
+            const Text('Bitcoin Watcher'),
+          ],
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -263,9 +273,13 @@ class _HomeScreenState extends State<HomeScreen> {
     final chartMinY = minPrice - padding;
     final chartMaxY = maxPrice + padding;
     
-    // Calculate intervals
+    // Calculate intervals - ensure we have 4-5 grid lines
     final displayRange = chartMaxY - chartMinY;
-    final horizontalInterval = displayRange / 5;
+    final horizontalInterval = displayRange / 4;
+    
+    // Calculate good Y-axis bounds that align with intervals
+    final yMin = (chartMinY / horizontalInterval).floor() * horizontalInterval;
+    final yMax = (chartMaxY / horizontalInterval).ceil() * horizontalInterval;
     
     // Show only 5-6 time labels evenly distributed
     final timeInterval = _priceHistory.length > 5 ? (_priceHistory.length / 5).floorToDouble() : 1.0;
@@ -305,13 +319,22 @@ class _HomeScreenState extends State<HomeScreen> {
               interval: timeInterval,
               getTitlesWidget: (value, meta) {
                 final index = value.toInt();
-                if (index < 0 || index >= _priceHistory.length) return const SizedBox();
+                // Skip first and last labels to prevent edge overlap
+                if (index <= 0 || index >= _priceHistory.length - 1) {
+                  return const SizedBox();
+                }
+                if (index < 0 || index >= _priceHistory.length) {
+                  return const SizedBox();
+                }
                 final time = _priceHistory[index].timestamp;
                 return Padding(
                   padding: const EdgeInsets.only(top: 8.0),
                   child: Text(
                     Formatters.formatTime(time),
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 10),
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      fontSize: 10,
+                      color: Colors.grey[400],
+                    ),
                   ),
                 );
               },
@@ -320,16 +343,24 @@ class _HomeScreenState extends State<HomeScreen> {
           leftTitles: AxisTitles(
             sideTitles: SideTitles(
               showTitles: true,
-              reservedSize: 60,
+              reservedSize: 65,
               interval: horizontalInterval,
               getTitlesWidget: (value, meta) {
+                // Only show labels within bounds and skip edge labels
+                if (value <= yMin || value >= yMax) {
+                  return const SizedBox();
+                }
+                
                 // Format price with K suffix
                 final priceK = value / 1000;
                 return Padding(
-                  padding: const EdgeInsets.only(right: 4.0),
+                  padding: const EdgeInsets.only(right: 8.0),
                   child: Text(
                     '\$${priceK.toStringAsFixed(1)}K',
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 10),
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      fontSize: 10,
+                      color: Colors.grey[400],
+                    ),
                     textAlign: TextAlign.right,
                   ),
                 );
@@ -346,8 +377,8 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         minX: 0,
         maxX: spots.length - 1.0,
-        minY: chartMinY,
-        maxY: chartMaxY,
+        minY: yMin,
+        maxY: yMax,
         lineTouchData: LineTouchData(
           enabled: true,
           touchTooltipData: LineTouchTooltipData(
