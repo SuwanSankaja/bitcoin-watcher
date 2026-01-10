@@ -1,0 +1,13 @@
+[{
+  "_id": "default",
+  "settings": {
+    "notifications_enabled": true,
+    "buy_threshold": 0.015,
+    "sell_threshold": 0.015,
+    "short_ma_period": 12,
+    "long_ma_period": 26
+  },
+  "updated_at": {
+    "$date": "2026-01-10T11:30:00.000Z"
+  }
+}]

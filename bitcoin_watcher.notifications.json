@@ -1,0 +1,884 @@
+[{
+  "_id": {
+    "$oid": "690726cedec1a274a7f326bd"
+  },
+  "timestamp": {
+    "$date": "2025-11-02T15:09:26.684Z"
+  },
+  "signal_id": "690726cbdec1a274a7f326bb",
+  "title": "SELL Signal Detected!",
+  "message": "BTC at $110,736.00 - Confidence 100%",
+  "signal_type": "SELL",
+  "price": 110736
+},
+{
+  "_id": {
+    "$oid": "6908cb4629851295b01ca9c8"
+  },
+  "timestamp": {
+    "$date": "2025-11-03T21:03:26.798Z"
+  },
+  "signal_id": "6908cb4329851295b01ca9c6",
+  "title": "SELL Signal Detected!",
+  "message": "BTC at $105,884.00 - Confidence 100%",
+  "signal_type": "SELL",
+  "price": 105884
+},
+{
+  "_id": {
+    "$oid": "690a7306b83197dbab59c91a"
+  },
+  "timestamp": {
+    "$date": "2025-11-05T03:11:26.495Z"
+  },
+  "signal_id": "690a7303b83197dbab59c918",
+  "title": "SELL Signal Detected!",
+  "message": "BTC at $99,069.00 - Confidence 100%",
+  "signal_type": "SELL",
+  "price": 99069
+},
+{
+  "_id": {
+    "$oid": "690a791e4fafc8941507d0bc"
+  },
+  "timestamp": {
+    "$date": "2025-11-05T03:37:26.323Z"
+  },
+  "signal_id": "690a791b4fafc8941507d0ba",
+  "title": "BUY Signal Detected!",
+  "message": "BTC at $100,504.00 - Confidence 100%",
+  "signal_type": "BUY",
+  "price": 100504
+},
+{
+  "_id": {
+    "$oid": "690aa8eea29e3cd8c2e10221"
+  },
+  "timestamp": {
+    "$date": "2025-11-05T07:01:26.025Z"
+  },
+  "signal_id": "690aa8eba29e3cd8c2e1021f",
+  "title": "SELL Signal Detected!",
+  "message": "BTC at $99,148.00 - Confidence 100%",
+  "signal_type": "SELL",
+  "price": 99148
+},
+{
+  "_id": {
+    "$oid": "690aaf05a29e3cd8c2e10264"
+  },
+  "timestamp": {
+    "$date": "2025-11-05T07:27:25.596Z"
+  },
+  "signal_id": "690aaf02a29e3cd8c2e10262",
+  "title": "BUY Signal Detected!",
+  "message": "BTC at $100,519.00 - Confidence 100%",
+  "signal_type": "BUY",
+  "price": 100519
+},
+{
+  "_id": {
+    "$oid": "690cd11d9e315a591a40072f"
+  },
+  "timestamp": {
+    "$date": "2025-11-06T22:17:25.895Z"
+  },
+  "signal_id": "690cd11a9e315a591a40072d",
+  "title": "SELL Signal Detected!",
+  "message": "BTC at $100,497.00 - Confidence 100%",
+  "signal_type": "SELL",
+  "price": 100497
+},
+{
+  "_id": {
+    "$oid": "6912908543fb0b565353a324"
+  },
+  "timestamp": {
+    "$date": "2025-11-11T06:55:25.810Z"
+  },
+  "signal_id": "6912908243fb0b565353a322",
+  "title": "BUY Signal Detected!",
+  "message": "BTC at $107,300.00 - Confidence 100%",
+  "signal_type": "BUY",
+  "price": 107300
+},
+{
+  "_id": {
+    "$oid": "6915a2264060664ae0cc4d9c"
+  },
+  "timestamp": {
+    "$date": "2025-11-13T14:47:26.612Z"
+  },
+  "signal_id": "6915a2234060664ae0cc4d9a",
+  "title": "SELL Signal Detected!",
+  "message": "BTC at $102,772.00 - Confidence 100%",
+  "signal_type": "SELL",
+  "price": 102772
+},
+{
+  "_id": {
+    "$oid": "6915f2c5193d521ae4c8f177"
+  },
+  "timestamp": {
+    "$date": "2025-11-13T20:31:25.985Z"
+  },
+  "signal_id": "6915f2c2193d521ae4c8f175",
+  "title": "BUY Signal Detected!",
+  "message": "BTC at $102,966.00 - Confidence 100%",
+  "signal_type": "BUY",
+  "price": 102966
+},
+{
+  "_id": {
+    "$oid": "6916b2f525527e86a14e7201"
+  },
+  "timestamp": {
+    "$date": "2025-11-14T10:11:25.861Z"
+  },
+  "signal_id": "6916b2f225527e86a14e71ff",
+  "title": "SELL Signal Detected!",
+  "message": "BTC at $97,598.00 - Confidence 100%",
+  "signal_type": "SELL",
+  "price": 97598
+},
+{
+  "_id": {
+    "$oid": "6916d52db565dcaccf0fa412"
+  },
+  "timestamp": {
+    "$date": "2025-11-14T12:37:25.897Z"
+  },
+  "signal_id": "6916d52ab565dcaccf0fa410",
+  "title": "BUY Signal Detected!",
+  "message": "BTC at $97,245.00 - Confidence 100%",
+  "signal_type": "BUY",
+  "price": 97245
+},
+{
+  "_id": {
+    "$oid": "6917b79606217958d6dafb01"
+  },
+  "timestamp": {
+    "$date": "2025-11-15T04:43:26.243Z"
+  },
+  "signal_id": "6917b79306217958d6dafaff",
+  "title": "SELL Signal Detected!",
+  "message": "BTC at $94,416.00 - Confidence 100%",
+  "signal_type": "SELL",
+  "price": 94416
+},
+{
+  "_id": {
+    "$oid": "6919f5cd2e908e064e5babe0"
+  },
+  "timestamp": {
+    "$date": "2025-11-16T21:33:25.777Z"
+  },
+  "signal_id": "6919f5ca2e908e064e5babde",
+  "title": "SELL Signal Detected!",
+  "message": "BTC at $94,433.00 - Confidence 100%",
+  "signal_type": "SELL",
+  "price": 94433
+},
+{
+  "_id": {
+    "$oid": "691a59a6aaad5ad0d585641b"
+  },
+  "timestamp": {
+    "$date": "2025-11-17T04:39:26.167Z"
+  },
+  "signal_id": "691a59a3aaad5ad0d5856419",
+  "title": "SELL Signal Detected!",
+  "message": "BTC at $93,197.00 - Confidence 100%",
+  "signal_type": "SELL",
+  "price": 93197
+},
+{
+  "_id": {
+    "$oid": "691b3416b6e644fea37ed152"
+  },
+  "timestamp": {
+    "$date": "2025-11-17T20:11:26.071Z"
+  },
+  "signal_id": "691b3413b6e644fea37ed150",
+  "title": "BUY Signal Detected!",
+  "message": "BTC at $95,495.00 - Confidence 100%",
+  "signal_type": "BUY",
+  "price": 95495
+},
+{
+  "_id": {
+    "$oid": "691be369ecd611aa30761fd3"
+  },
+  "timestamp": {
+    "$date": "2025-11-18T08:39:29.302Z"
+  },
+  "signal_id": "691be366ecd611aa30761fd1",
+  "title": "SELL Signal Detected!",
+  "message": "BTC at $90,460.00 - Confidence 100%",
+  "signal_type": "SELL",
+  "price": 90460
+},
+{
+  "_id": {
+    "$oid": "691c8fe694397e70ba94c61c"
+  },
+  "timestamp": {
+    "$date": "2025-11-18T20:55:26.336Z"
+  },
+  "signal_id": "691c8fe294397e70ba94c61a",
+  "title": "BUY Signal Detected!",
+  "message": "BTC at $92,519.00 - Confidence 100%",
+  "signal_type": "BUY",
+  "price": 92519
+},
+{
+  "_id": {
+    "$oid": "691de2cec6b3202beec780ae"
+  },
+  "timestamp": {
+    "$date": "2025-11-19T21:01:26.393Z"
+  },
+  "signal_id": "691de2cbc6b3202beec780ac",
+  "title": "SELL Signal Detected!",
+  "message": "BTC at $91,179.00 - Confidence 100%",
+  "signal_type": "SELL",
+  "price": 91179
+},
+{
+  "_id": {
+    "$oid": "691f220632ebc4cc63c328f4"
+  },
+  "timestamp": {
+    "$date": "2025-11-20T19:43:26.142Z"
+  },
+  "signal_id": "691f220332ebc4cc63c328f2",
+  "title": "SELL Signal Detected!",
+  "message": "BTC at $90,568.00 - Confidence 100%",
+  "signal_type": "SELL",
+  "price": 90568
+},
+{
+  "_id": {
+    "$oid": "691f3dae184063da549a799e"
+  },
+  "timestamp": {
+    "$date": "2025-11-20T21:41:26.237Z"
+  },
+  "signal_id": "691f3dab184063da549a799c",
+  "title": "SELL Signal Detected!",
+  "message": "BTC at $88,922.00 - Confidence 100%",
+  "signal_type": "SELL",
+  "price": 88922
+},
+{
+  "_id": {
+    "$oid": "692016b63fbeb7c870d597d7"
+  },
+  "timestamp": {
+    "$date": "2025-11-21T13:07:26.454Z"
+  },
+  "signal_id": "692016b33fbeb7c870d597d5",
+  "title": "SELL Signal Detected!",
+  "message": "BTC at $83,475.00 - Confidence 100%",
+  "signal_type": "SELL",
+  "price": 83475
+},
+{
+  "_id": {
+    "$oid": "69205b264f7188b1797e08f6"
+  },
+  "timestamp": {
+    "$date": "2025-11-21T17:59:26.172Z"
+  },
+  "signal_id": "69205b224f7188b1797e08f4",
+  "title": "SELL Signal Detected!",
+  "message": "BTC at $81,053.00 - Confidence 100%",
+  "signal_type": "SELL",
+  "price": 81053
+},
+{
+  "_id": {
+    "$oid": "69205e6e92beb1fe9526bf7c"
+  },
+  "timestamp": {
+    "$date": "2025-11-21T18:13:26.924Z"
+  },
+  "signal_id": "69205e6c92beb1fe9526bf7a",
+  "title": "BUY Signal Detected!",
+  "message": "BTC at $82,709.00 - Confidence 100%",
+  "signal_type": "BUY",
+  "price": 82709
+},
+{
+  "_id": {
+    "$oid": "6920799d92beb1fe9526c0a0"
+  },
+  "timestamp": {
+    "$date": "2025-11-21T20:09:25.808Z"
+  },
+  "signal_id": "6920799b92beb1fe9526c09e",
+  "title": "BUY Signal Detected!",
+  "message": "BTC at $84,790.00 - Confidence 100%",
+  "signal_type": "BUY",
+  "price": 84790
+},
+{
+  "_id": {
+    "$oid": "6920889ec934d653a7f3c106"
+  },
+  "timestamp": {
+    "$date": "2025-11-21T21:13:26.361Z"
+  },
+  "signal_id": "6920889bc934d653a7f3c104",
+  "title": "SELL Signal Detected!",
+  "message": "BTC at $82,897.00 - Confidence 100%",
+  "signal_type": "SELL",
+  "price": 82897
+},
+{
+  "_id": {
+    "$oid": "692099f687513031f2af114c"
+  },
+  "timestamp": {
+    "$date": "2025-11-21T22:27:26.451Z"
+  },
+  "signal_id": "692099f387513031f2af114a",
+  "title": "BUY Signal Detected!",
+  "message": "BTC at $84,354.00 - Confidence 100%",
+  "signal_type": "BUY",
+  "price": 84354
+},
+{
+  "_id": {
+    "$oid": "6920ab4e87513031f2af1207"
+  },
+  "timestamp": {
+    "$date": "2025-11-21T23:41:26.019Z"
+  },
+  "signal_id": "6920ab4b87513031f2af1205",
+  "title": "SELL Signal Detected!",
+  "message": "BTC at $83,916.00 - Confidence 100%",
+  "signal_type": "SELL",
+  "price": 83916
+},
+{
+  "_id": {
+    "$oid": "6920b1dd87513031f2af124f"
+  },
+  "timestamp": {
+    "$date": "2025-11-22T00:09:25.461Z"
+  },
+  "signal_id": "6920b1da87513031f2af124d",
+  "title": "BUY Signal Detected!",
+  "message": "BTC at $84,392.00 - Confidence 100%",
+  "signal_type": "BUY",
+  "price": 84392
+},
+{
+  "_id": {
+    "$oid": "6923becd2d5ab375f4576d07"
+  },
+  "timestamp": {
+    "$date": "2025-11-24T07:41:25.653Z"
+  },
+  "signal_id": "6923beca2d5ab375f4576d05",
+  "title": "BUY Signal Detected!",
+  "message": "BTC at $87,709.00 - Confidence 100%",
+  "signal_type": "BUY",
+  "price": 87709
+},
+{
+  "_id": {
+    "$oid": "6923de355808048d0f0e35cb"
+  },
+  "timestamp": {
+    "$date": "2025-11-24T09:55:25.981Z"
+  },
+  "signal_id": "6923de325808048d0f0e35c9",
+  "title": "SELL Signal Detected!",
+  "message": "BTC at $86,578.00 - Confidence 100%",
+  "signal_type": "SELL",
+  "price": 86578
+},
+{
+  "_id": {
+    "$oid": "6923ea65dedb78e3b6467d79"
+  },
+  "timestamp": {
+    "$date": "2025-11-24T10:47:25.956Z"
+  },
+  "signal_id": "6923ea62dedb78e3b6467d77",
+  "title": "BUY Signal Detected!",
+  "message": "BTC at $87,566.00 - Confidence 100%",
+  "signal_type": "BUY",
+  "price": 87566
+},
+{
+  "_id": {
+    "$oid": "692475261e18e0bfd565f5fd"
+  },
+  "timestamp": {
+    "$date": "2025-11-24T20:39:26.092Z"
+  },
+  "signal_id": "692475221e18e0bfd565f5fb",
+  "title": "BUY Signal Detected!",
+  "message": "BTC at $86,589.00 - Confidence 100%",
+  "signal_type": "BUY",
+  "price": 86589
+},
+{
+  "_id": {
+    "$oid": "69273a5d8e2a35099b882850"
+  },
+  "timestamp": {
+    "$date": "2025-11-26T23:05:25.873Z"
+  },
+  "signal_id": "69273a5a8e2a35099b88284e",
+  "title": "BUY Signal Detected!",
+  "message": "BTC at $88,765.00 - Confidence 100%",
+  "signal_type": "BUY",
+  "price": 88765
+},
+{
+  "_id": {
+    "$oid": "692cdd2d34988bb03c0fb6d5"
+  },
+  "timestamp": {
+    "$date": "2025-12-01T05:41:25.882Z"
+  },
+  "signal_id": "692cdd2a34988bb03c0fb6d3",
+  "title": "SELL Signal Detected!",
+  "message": "BTC at $89,209.00 - Confidence 100%",
+  "signal_type": "SELL",
+  "price": 89209
+},
+{
+  "_id": {
+    "$oid": "692db6ae03bd8fe074931004"
+  },
+  "timestamp": {
+    "$date": "2025-12-01T21:09:26.383Z"
+  },
+  "signal_id": "692db6ab03bd8fe074931002",
+  "title": "SELL Signal Detected!",
+  "message": "BTC at $84,573.00 - Confidence 100%",
+  "signal_type": "SELL",
+  "price": 84573
+},
+{
+  "_id": {
+    "$oid": "692db90503bd8fe07493101f"
+  },
+  "timestamp": {
+    "$date": "2025-12-01T21:19:25.464Z"
+  },
+  "signal_id": "692db90303bd8fe07493101d",
+  "title": "SELL Signal Detected!",
+  "message": "BTC at $84,009.00 - Confidence 100%",
+  "signal_type": "SELL",
+  "price": 84009
+},
+{
+  "_id": {
+    "$oid": "692f0126a9f0b5f845f90d37"
+  },
+  "timestamp": {
+    "$date": "2025-12-02T20:39:26.141Z"
+  },
+  "signal_id": "692f0123a9f0b5f845f90d35",
+  "title": "BUY Signal Detected!",
+  "message": "BTC at $89,938.00 - Confidence 100%",
+  "signal_type": "BUY",
+  "price": 89938
+},
+{
+  "_id": {
+    "$oid": "6930449614ec88ad1e8ab163"
+  },
+  "timestamp": {
+    "$date": "2025-12-03T19:39:26.238Z"
+  },
+  "signal_id": "6930449314ec88ad1e8ab161",
+  "title": "SELL Signal Detected!",
+  "message": "BTC at $92,053.00 - Confidence 100%",
+  "signal_type": "SELL",
+  "price": 92053
+},
+{
+  "_id": {
+    "$oid": "69304d7d14ec88ad1e8ab1c4"
+  },
+  "timestamp": {
+    "$date": "2025-12-03T20:17:25.493Z"
+  },
+  "signal_id": "69304d7a14ec88ad1e8ab1c2",
+  "title": "BUY Signal Detected!",
+  "message": "BTC at $93,446.00 - Confidence 100%",
+  "signal_type": "BUY",
+  "price": 93446
+},
+{
+  "_id": {
+    "$oid": "6932f5a5cd0211a7164af103"
+  },
+  "timestamp": {
+    "$date": "2025-12-05T20:39:25.885Z"
+  },
+  "signal_id": "6932f5a2cd0211a7164af101",
+  "title": "BUY Signal Detected!",
+  "message": "BTC at $91,266.00 - Confidence 100%",
+  "signal_type": "BUY",
+  "price": 91266
+},
+{
+  "_id": {
+    "$oid": "693304a6ee915521eea64d46"
+  },
+  "timestamp": {
+    "$date": "2025-12-05T21:43:26.044Z"
+  },
+  "signal_id": "693304a3ee915521eea64d44",
+  "title": "SELL Signal Detected!",
+  "message": "BTC at $89,451.00 - Confidence 100%",
+  "signal_type": "SELL",
+  "price": 89451
+},
+{
+  "_id": {
+    "$oid": "69359035a2c0c52f91c10d11"
+  },
+  "timestamp": {
+    "$date": "2025-12-07T20:03:25.933Z"
+  },
+  "signal_id": "69359032a2c0c52f91c10d0f",
+  "title": "SELL Signal Detected!",
+  "message": "BTC at $87,991.00 - Confidence 100%",
+  "signal_type": "SELL",
+  "price": 87991
+},
+{
+  "_id": {
+    "$oid": "6938448e4fff8ad9aa4cd70d"
+  },
+  "timestamp": {
+    "$date": "2025-12-09T21:17:26.089Z"
+  },
+  "signal_id": "6938448a4fff8ad9aa4cd70b",
+  "title": "BUY Signal Detected!",
+  "message": "BTC at $92,059.00 - Confidence 100%",
+  "signal_type": "BUY",
+  "price": 92059
+},
+{
+  "_id": {
+    "$oid": "6938466d4fff8ad9aa4cd723"
+  },
+  "timestamp": {
+    "$date": "2025-12-09T21:25:25.639Z"
+  },
+  "signal_id": "6938466b4fff8ad9aa4cd721",
+  "title": "BUY Signal Detected!",
+  "message": "BTC at $92,726.00 - Confidence 100%",
+  "signal_type": "BUY",
+  "price": 92726
+},
+{
+  "_id": {
+    "$oid": "6939d555a45d1378d57c1f38"
+  },
+  "timestamp": {
+    "$date": "2025-12-11T01:47:25.908Z"
+  },
+  "signal_id": "6939d552a45d1378d57c1f36",
+  "title": "BUY Signal Detected!",
+  "message": "BTC at $94,159.00 - Confidence 100%",
+  "signal_type": "BUY",
+  "price": 94159
+},
+{
+  "_id": {
+    "$oid": "6939df2da45d1378d57c1fa3"
+  },
+  "timestamp": {
+    "$date": "2025-12-11T02:29:25.429Z"
+  },
+  "signal_id": "6939df2aa45d1378d57c1fa1",
+  "title": "SELL Signal Detected!",
+  "message": "BTC at $92,502.00 - Confidence 100%",
+  "signal_type": "SELL",
+  "price": 92502
+},
+{
+  "_id": {
+    "$oid": "693b35d6d236e7ced73d6501"
+  },
+  "timestamp": {
+    "$date": "2025-12-12T02:51:26.020Z"
+  },
+  "signal_id": "693b35d2d236e7ced73d64ff",
+  "title": "BUY Signal Detected!",
+  "message": "BTC at $92,990.00 - Confidence 100%",
+  "signal_type": "BUY",
+  "price": 92990
+},
+{
+  "_id": {
+    "$oid": "693c363e4639815071cf5b6a"
+  },
+  "timestamp": {
+    "$date": "2025-12-12T21:05:26.189Z"
+  },
+  "signal_id": "693c363b4639815071cf5b68",
+  "title": "SELL Signal Detected!",
+  "message": "BTC at $90,786.00 - Confidence 100%",
+  "signal_type": "SELL",
+  "price": 90786
+},
+{
+  "_id": {
+    "$oid": "694021d6f25847c098929ae0"
+  },
+  "timestamp": {
+    "$date": "2025-12-15T20:27:26.101Z"
+  },
+  "signal_id": "694021d2f25847c098929ade",
+  "title": "SELL Signal Detected!",
+  "message": "BTC at $88,259.00 - Confidence 100%",
+  "signal_type": "SELL",
+  "price": 88259
+},
+{
+  "_id": {
+    "$oid": "694028ddf25847c098929b2d"
+  },
+  "timestamp": {
+    "$date": "2025-12-15T20:57:25.737Z"
+  },
+  "signal_id": "694028dbf25847c098929b2b",
+  "title": "SELL Signal Detected!",
+  "message": "BTC at $86,795.00 - Confidence 100%",
+  "signal_type": "SELL",
+  "price": 86795
+},
+{
+  "_id": {
+    "$oid": "6942c54ea1de2465aea1937f"
+  },
+  "timestamp": {
+    "$date": "2025-12-17T20:29:26.157Z"
+  },
+  "signal_id": "6942c54ba1de2465aea1937d",
+  "title": "BUY Signal Detected!",
+  "message": "BTC at $89,370.00 - Confidence 100%",
+  "signal_type": "BUY",
+  "price": 89370
+},
+{
+  "_id": {
+    "$oid": "6942d105a1de2465aea193fe"
+  },
+  "timestamp": {
+    "$date": "2025-12-17T21:19:25.727Z"
+  },
+  "signal_id": "6942d103a1de2465aea193fc",
+  "title": "SELL Signal Detected!",
+  "message": "BTC at $88,327.00 - Confidence 100%",
+  "signal_type": "SELL",
+  "price": 88327
+},
+{
+  "_id": {
+    "$oid": "6942d8fea1de2465aea19455"
+  },
+  "timestamp": {
+    "$date": "2025-12-17T21:53:26.115Z"
+  },
+  "signal_id": "6942d8fba1de2465aea19453",
+  "title": "SELL Signal Detected!",
+  "message": "BTC at $86,642.00 - Confidence 100%",
+  "signal_type": "SELL",
+  "price": 86642
+},
+{
+  "_id": {
+    "$oid": "694406668c7b4d65f3c3aa8d"
+  },
+  "timestamp": {
+    "$date": "2025-12-18T19:19:26.162Z"
+  },
+  "signal_id": "694406638c7b4d65f3c3aa8b",
+  "title": "BUY Signal Detected!",
+  "message": "BTC at $88,823.00 - Confidence 100%",
+  "signal_type": "BUY",
+  "price": 88823
+},
+{
+  "_id": {
+    "$oid": "694421963aaff54a5dbbbde8"
+  },
+  "timestamp": {
+    "$date": "2025-12-18T21:15:26.464Z"
+  },
+  "signal_id": "694421933aaff54a5dbbbde6",
+  "title": "BUY Signal Detected!",
+  "message": "BTC at $89,215.00 - Confidence 100%",
+  "signal_type": "BUY",
+  "price": 89215
+},
+{
+  "_id": {
+    "$oid": "694435be63e725121b349168"
+  },
+  "timestamp": {
+    "$date": "2025-12-18T22:41:26.006Z"
+  },
+  "signal_id": "694435bb63e725121b349166",
+  "title": "SELL Signal Detected!",
+  "message": "BTC at $86,932.00 - Confidence 100%",
+  "signal_type": "SELL",
+  "price": 86932
+},
+{
+  "_id": {
+    "$oid": "69445ac66413a6512e3ee5bd"
+  },
+  "timestamp": {
+    "$date": "2025-12-19T01:19:26.000Z"
+  },
+  "signal_id": "69445ac36413a6512e3ee5bb",
+  "title": "SELL Signal Detected!",
+  "message": "BTC at $84,591.00 - Confidence 100%",
+  "signal_type": "SELL",
+  "price": 84591
+},
+{
+  "_id": {
+    "$oid": "6944c78573d2769fb8bee4fe"
+  },
+  "timestamp": {
+    "$date": "2025-12-19T09:03:25.715Z"
+  },
+  "signal_id": "6944c78273d2769fb8bee4fc",
+  "title": "BUY Signal Detected!",
+  "message": "BTC at $87,241.00 - Confidence 100%",
+  "signal_type": "BUY",
+  "price": 87241
+},
+{
+  "_id": {
+    "$oid": "69456d76d9b1205e7959df5f"
+  },
+  "timestamp": {
+    "$date": "2025-12-19T20:51:26.048Z"
+  },
+  "signal_id": "69456d73d9b1205e7959df5d",
+  "title": "BUY Signal Detected!",
+  "message": "BTC at $88,690.00 - Confidence 100%",
+  "signal_type": "BUY",
+  "price": 88690
+},
+{
+  "_id": {
+    "$oid": "69458d566fb0680a813e4fb7"
+  },
+  "timestamp": {
+    "$date": "2025-12-19T23:07:26.281Z"
+  },
+  "signal_id": "69458d536fb0680a813e4fb5",
+  "title": "SELL Signal Detected!",
+  "message": "BTC at $87,090.00 - Confidence 100%",
+  "signal_type": "SELL",
+  "price": 87090
+},
+{
+  "_id": {
+    "$oid": "694df1268473c3cf37183b1e"
+  },
+  "timestamp": {
+    "$date": "2025-12-26T07:51:26.158Z"
+  },
+  "signal_id": "694df1238473c3cf37183b1c",
+  "title": "BUY Signal Detected!",
+  "message": "BTC at $88,478.00 - Confidence 100%",
+  "signal_type": "BUY",
+  "price": 88478
+},
+{
+  "_id": {
+    "$oid": "694ea2569f309ba1c56327b9"
+  },
+  "timestamp": {
+    "$date": "2025-12-26T20:27:26.391Z"
+  },
+  "signal_id": "694ea2539f309ba1c56327b7",
+  "title": "SELL Signal Detected!",
+  "message": "BTC at $87,522.00 - Confidence 100%",
+  "signal_type": "SELL",
+  "price": 87522
+},
+{
+  "_id": {
+    "$oid": "69524cc6c7ba8f31b59c074f"
+  },
+  "timestamp": {
+    "$date": "2025-12-29T15:11:26.150Z"
+  },
+  "signal_id": "69524cc3c7ba8f31b59c074d",
+  "title": "SELL Signal Detected!",
+  "message": "BTC at $88,370.00 - Confidence 100%",
+  "signal_type": "SELL",
+  "price": 88370
+},
+{
+  "_id": {
+    "$oid": "6953e9466e5d8a0087cdbba1"
+  },
+  "timestamp": {
+    "$date": "2025-12-30T20:31:26.286Z"
+  },
+  "signal_id": "6953e9436e5d8a0087cdbb9f",
+  "title": "BUY Signal Detected!",
+  "message": "BTC at $88,805.00 - Confidence 100%",
+  "signal_type": "BUY",
+  "price": 88805
+},
+{
+  "_id": {
+    "$oid": "6957dc5ed7e20ab1c18bad3f"
+  },
+  "timestamp": {
+    "$date": "2026-01-02T20:25:26.264Z"
+  },
+  "signal_id": "6957dc5bd7e20ab1c18bad3d",
+  "title": "BUY Signal Detected!",
+  "message": "BTC at $89,683.00 - Confidence 100%",
+  "signal_type": "BUY",
+  "price": 89683
+},
+{
+  "_id": {
+    "$oid": "695d7cd5f6bc380ff1c3de9d"
+  },
+  "timestamp": {
+    "$date": "2026-01-07T02:51:25.964Z"
+  },
+  "signal_id": "695d7cd2f6bc380ff1c3de9b",
+  "title": "BUY Signal Detected!",
+  "message": "BTC at $93,645.00 - Confidence 100%",
+  "signal_type": "BUY",
+  "price": 93645
+},
+{
+  "_id": {
+    "$oid": "69611f4e3a58576bc1fcadf3"
+  },
+  "timestamp": {
+    "$date": "2026-01-09T21:01:26.279Z"
+  },
+  "signal_id": "69611f4b3a58576bc1fcadf1",
+  "title": "BUY Signal Detected!",
+  "message": "BTC at $91,571.00 - Confidence 100%",
+  "signal_type": "BUY",
+  "price": 91571
+}]

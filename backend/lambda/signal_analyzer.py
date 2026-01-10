@@ -45,10 +45,10 @@ def get_settings_from_db():
     """Fetch settings from MongoDB, return defaults if not found"""
     default_settings = {
         'notifications_enabled': True,
-        'buy_threshold': 0.005,
-        'sell_threshold': 0.005,
-        'short_ma_period': 7,
-        'long_ma_period': 21
+        'buy_threshold': 0.015,  # 1.5% - more stable than 0.5%
+        'sell_threshold': 0.015,  # 1.5% - more stable than 0.5%
+        'short_ma_period': 12,  # Increased from 7 for less noise
+        'long_ma_period': 26  # Increased from 21 for better trend detection
     }
     
     try:
@@ -125,8 +125,13 @@ def get_last_signal():
         print(f"Error fetching last signal: {e}")
         return None
 
-def analyze_signal(prices, short_period=7, long_period=21, buy_threshold=0.005, sell_threshold=0.005):
-    """Analyze prices and generate trading signal"""
+def analyze_signal(prices, short_period=12, long_period=26, buy_threshold=0.015, sell_threshold=0.015):
+    """Analyze prices and generate trading signal
+
+    CORRECTED LOGIC:
+    - BUY: When short MA crosses significantly BELOW long MA (price dipping - buy opportunity)
+    - SELL: When short MA crosses significantly ABOVE long MA (price peaking - sell opportunity)
+    """
     if len(prices) < long_period:
         return {
             'type': 'HOLD',
@@ -134,24 +139,26 @@ def analyze_signal(prices, short_period=7, long_period=21, buy_threshold=0.005, 
             'confidence': 0,
             'reason': 'Insufficient data'
         }
-    
+
     # Calculate moving averages
     short_ma = calculate_moving_average(prices, short_period)
     long_ma = calculate_moving_average(prices, long_period)
-    
+
     current_price = prices[-1]['price']
-    
-    # Calculate signal
-    if short_ma > long_ma * (1 + buy_threshold):
+
+    # CORRECTED Calculate signal logic
+    # When short MA is significantly BELOW long MA -> downtrend -> BUY opportunity (buy the dip)
+    # When short MA is significantly ABOVE long MA -> uptrend -> SELL opportunity (take profit)
+    if short_ma < long_ma * (1 - buy_threshold):
         signal_type = 'BUY'
-        confidence = min(((short_ma / long_ma - 1) / buy_threshold) * 100, 100)
-    elif short_ma < long_ma * (1 - sell_threshold):
+        confidence = min(((1 - short_ma / long_ma) / buy_threshold) * 100, 100)
+    elif short_ma > long_ma * (1 + sell_threshold):
         signal_type = 'SELL'
-        confidence = min(((1 - short_ma / long_ma) / sell_threshold) * 100, 100)
+        confidence = min(((short_ma / long_ma - 1) / sell_threshold) * 100, 100)
     else:
         signal_type = 'HOLD'
         confidence = 50
-    
+
     return {
         'type': signal_type,
         'price': current_price,
