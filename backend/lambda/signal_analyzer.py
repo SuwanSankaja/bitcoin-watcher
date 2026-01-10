@@ -45,10 +45,10 @@ def get_settings_from_db():
     """Fetch settings from MongoDB, return defaults if not found"""
     default_settings = {
         'notifications_enabled': True,
-        'buy_threshold': 0.015,  # 1.5% - more stable than 0.5%
-        'sell_threshold': 0.015,  # 1.5% - more stable than 0.5%
-        'short_ma_period': 12,  # Increased from 7 for less noise
-        'long_ma_period': 26  # Increased from 21 for better trend detection
+        'buy_threshold': 0.008,  # 0.8% - Day trading: catch smaller movements
+        'sell_threshold': 0.008,  # 0.8% - Day trading: catch smaller movements
+        'short_ma_period': 5,  # 5 min - Fast reaction to price changes
+        'long_ma_period': 15  # 15 min - Quick trend detection for day trading
     }
     
     try:
@@ -125,7 +125,7 @@ def get_last_signal():
         print(f"Error fetching last signal: {e}")
         return None
 
-def analyze_signal(prices, short_period=12, long_period=26, buy_threshold=0.015, sell_threshold=0.015):
+def analyze_signal(prices, short_period=5, long_period=15, buy_threshold=0.008, sell_threshold=0.008):
     """Analyze prices and generate trading signal
 
     CORRECTED LOGIC:

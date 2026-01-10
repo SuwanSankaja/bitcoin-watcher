@@ -9,13 +9,14 @@
   - **BUY**: When short MA < long MA (price dipping - buy opportunity)
   - **SELL**: When short MA > long MA (price peaking - take profit)
 
-### 2. **Improved Default Settings**
+### 2. **Improved Default Settings - DAY TRADING**
 - **Files**: `backend/lambda/signal_analyzer.py`, `bitcoin_watcher.settings.json`
 - **Changes**:
-  - `buy_threshold`: 0.005 → 0.015 (1.5% for more stability)
-  - `sell_threshold`: 0.005 → 0.015 (1.5% for more stability)
-  - `short_ma_period`: 7 → 12 (less noise)
-  - `long_ma_period`: 21 → 26 (better trend detection)
+  - `buy_threshold`: 0.005 → 0.008 (0.8% for day trading)
+  - `sell_threshold`: 0.005 → 0.008 (0.8% for day trading)
+  - `short_ma_period`: 7 → 5 (fast reaction)
+  - `long_ma_period`: 21 → 15 (quick trend detection)
+- **Note**: These are DAY TRADING settings (3-8 signals/day). See [DAY_TRADING_CONFIG.md](DAY_TRADING_CONFIG.md) for alternatives.
 
 ---
 
@@ -53,6 +54,23 @@ You need to update your MongoDB database with the new settings:
    ```javascript
    use bitcoin_watcher
 
+   // DAY TRADING SETTINGS (3-8 signals per day)
+   db.settings.updateOne(
+     { "_id": "default" },
+     {
+       $set: {
+         "settings.buy_threshold": 0.008,
+         "settings.sell_threshold": 0.008,
+         "settings.short_ma_period": 5,
+         "settings.long_ma_period": 15,
+         "updated_at": new Date()
+       }
+     }
+   )
+   ```
+
+   **Alternative: For Swing Trading (1-3 signals per week):**
+   ```javascript
    db.settings.updateOne(
      { "_id": "default" },
      {
@@ -72,16 +90,16 @@ You need to update your MongoDB database with the new settings:
    db.settings.findOne({ "_id": "default" })
    ```
 
-   You should see:
+   You should see (Day Trading):
    ```json
    {
      "_id": "default",
      "settings": {
        "notifications_enabled": true,
-       "buy_threshold": 0.015,
-       "sell_threshold": 0.015,
-       "short_ma_period": 12,
-       "long_ma_period": 26
+       "buy_threshold": 0.008,
+       "sell_threshold": 0.008,
+       "short_ma_period": 5,
+       "long_ma_period": 15
      },
      "updated_at": ISODate("...")
    }
@@ -99,7 +117,7 @@ You need to update your MongoDB database with the new settings:
    - Go to **CloudWatch** → **Log groups**
    - Find `/aws/lambda/signal_analyzer` (or your function name)
    - Check recent logs after the next scheduled run
-   - Look for the line: `Using MA periods: 12/26, Thresholds: 0.015/0.015`
+   - Look for the line: `Using MA periods: 5/15, Thresholds: 0.008/0.008` (Day Trading)
 
 3. **Wait for Next Signal**:
    - Your EventBridge rule should trigger the function automatically
