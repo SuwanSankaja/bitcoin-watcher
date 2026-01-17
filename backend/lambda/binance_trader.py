@@ -136,6 +136,33 @@ class BinanceSpotTrader:
             print(f"Failed to get balance for {asset}: {e}")
             raise
 
+    def get_balances(self):
+        """
+        Get all non-zero balances as a dictionary
+
+        Returns:
+            Dictionary with asset symbols as keys and balances as values
+        """
+        try:
+            account_info = self.get_account_info()
+            all_balances = account_info.get('balances', [])
+
+            result = {}
+            for balance in all_balances:
+                free = float(balance['free'])
+                locked = float(balance['locked'])
+                total = free + locked
+
+                # Only include non-zero balances
+                if total > 0:
+                    result[balance['asset']] = total
+
+            return result
+
+        except Exception as e:
+            print(f"Failed to get balances: {e}")
+            raise
+
     def get_current_price(self, symbol='BTCUSDT'):
         """Get current market price for symbol"""
         try:
