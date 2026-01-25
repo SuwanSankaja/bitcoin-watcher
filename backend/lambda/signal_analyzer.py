@@ -245,8 +245,7 @@ def execute_trade(signal_data, signal_id, settings):
         )
 
         # Test connection
-        if not trader.test_connection():
-            raise Exception("Failed to connect to Binance API")
+        trader.test_connection()
 
         trade_result = None
 

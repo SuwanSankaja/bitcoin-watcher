@@ -1,6 +1,35 @@
-# AWS IAM Policy Setup for Bitcoin Watcher
+# AWS Backend Setup for Bitcoin Watcher
 
-## Lambda Execution Role Policy
+## 🚀 Automated Deployment (Recommended)
+
+To fix "451 Unavailable For Legal Reasons" errors or deploy to a new region, use the automated script:
+
+```bash
+# Deploy to Tokyo (ap-northeast-1) - Recommended for Binance
+./backend/deploy_backend.sh ap-northeast-1
+
+# Deploy to Singapore (ap-southeast-1)
+./backend/deploy_backend.sh ap-southeast-1
+
+# Deploy to Mumbai (ap-south-1) - WARNING: May be blocked by Binance
+./backend/deploy_backend.sh ap-south-1
+```
+
+The script will:
+1. Create/Update IAM Roles
+2. Deploy Lambda functions
+3. Setup Secrets (it will prompt you if they don't exist)
+
+**Post-Script Steps:**
+1. Go to AWS Console -> API Gateway -> Create API (if not exists)
+2. Go to AWS Console -> EventBridge -> Create Rules (if not exists)
+3. Update your `.env` file with the new API Gateway URL.
+
+---
+
+## Manual Setup (Legacy)
+
+### Lambda Execution Role Policy
 
 Create a custom policy with these permissions:
 

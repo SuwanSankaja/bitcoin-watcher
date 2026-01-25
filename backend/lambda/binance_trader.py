@@ -12,6 +12,8 @@ import requests
 from urllib.parse import urlencode
 from datetime import datetime
 import pytz
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
 
 class BinanceSpotTrader:
@@ -39,6 +41,16 @@ class BinanceSpotTrader:
         self.testnet = testnet
 
         print(f"Initialized Binance Trader ({'TESTNET' if testnet else 'PRODUCTION'})")
+
+        # Configure session with retries
+        self.session = requests.Session()
+        retries = Retry(
+            total=3,
+            backoff_factor=0.5,
+            status_forcelist=[500, 502, 503, 504],
+            allowed_methods=frozenset(['GET', 'POST', 'DELETE'])
+        )
+        self.session.mount('https://', HTTPAdapter(max_retries=retries))
 
     def _generate_signature(self, params):
         """Generate HMAC SHA256 signature"""
@@ -74,11 +86,11 @@ class BinanceSpotTrader:
 
         try:
             if method == 'GET':
-                response = requests.get(url, params=params, headers=headers, timeout=10)
+                response = self.session.get(url, params=params, headers=headers, timeout=10)
             elif method == 'POST':
-                response = requests.post(url, params=params, headers=headers, timeout=10)
+                response = self.session.post(url, params=params, headers=headers, timeout=10)
             elif method == 'DELETE':
-                response = requests.delete(url, params=params, headers=headers, timeout=10)
+                response = self.session.delete(url, params=params, headers=headers, timeout=10)
             else:
                 raise ValueError(f"Unsupported method: {method}")
 
@@ -99,7 +111,7 @@ class BinanceSpotTrader:
             return True
         except Exception as e:
             print(f"❌ Binance API connection failed: {e}")
-            return False
+            raise
 
     def get_account_info(self):
         """Get account information and balances"""
