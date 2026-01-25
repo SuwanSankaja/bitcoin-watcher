@@ -55,14 +55,17 @@ def get_settings_from_db():
     """Fetch settings from MongoDB, return defaults if not found"""
     default_settings = {
         'notifications_enabled': True,
-        'buy_threshold': 0.008,  # 0.8% - Day trading: catch smaller movements
-        'sell_threshold': 0.008,  # 0.8% - Day trading: catch smaller movements
-        'short_ma_period': 5,  # 5 min - Fast reaction to price changes
-        'long_ma_period': 15,  # 15 min - Quick trend detection for day trading
-        'trading_enabled': False,  # Enable/disable automated trading
-        'trading_mode': 'testnet',  # 'testnet' or 'production'
-        'trade_amount_usdt': 100,  # USDT amount per BUY trade
-        'sell_percentage': 100  # Percentage of BTC to sell (100 = all)
+        'buy_threshold': 0.003,      # 0.3% - More conservative
+        'sell_threshold': 0.003,     # 0.3% - More conservative
+        'short_ma_period': 7,        # 7 min - Less noise
+        'long_ma_period': 25,        # 25 min - Better trend
+        'rsi_period': 14,            # Standard RSI period
+        'rsi_overbought': 70,        # Standard Overbought
+        'rsi_oversold': 30,          # Standard Oversold
+        'trading_enabled': False,
+        'trading_mode': 'testnet',
+        'trade_amount_usdt': 20,
+        'sell_percentage': 100
     }
     
     try:
@@ -87,8 +90,8 @@ def get_settings_from_db():
         print("Falling back to default settings")
         return default_settings
 
-def get_recent_prices(minutes=30):
-    """Fetch recent prices from MongoDB"""
+def get_recent_prices(minutes=60):
+    """Fetch recent prices from MongoDB (increased history for RSI)"""
     try:
         client = get_mongo_client()
         db = client['bitcoin_watcher']
@@ -121,6 +124,43 @@ def calculate_moving_average(prices, period):
     recent_prices = [p['price'] for p in prices[-period:]]
     return sum(recent_prices) / len(recent_prices)
 
+def calculate_rsi(prices, period=14):
+    """Calculate Relative Strength Index (RSI)"""
+    if len(prices) < period + 1:
+        return 50 # Neutral default if not enough data
+
+    gains = []
+    losses = []
+
+    # Calculate price changes
+    for i in range(1, len(prices)):
+        change = prices[i]['price'] - prices[i-1]['price']
+        if change > 0:
+            gains.append(change)
+            losses.append(0)
+        else:
+            gains.append(0)
+            losses.append(abs(change))
+
+    # We need at least 'period' changes
+    if len(gains) < period:
+         return 50
+
+    # Use simple average for the last 'period' (Windowed RSI)
+    # Note: True Wilder's RSI requires history, but this is a stateless approximation
+    recent_gains = gains[-period:]
+    recent_losses = losses[-period:]
+
+    avg_gain = sum(recent_gains) / period
+    avg_loss = sum(recent_losses) / period
+
+    if avg_loss == 0:
+        return 100
+    
+    rs = avg_gain / avg_loss
+    rsi = 100 - (100 / (1 + rs))
+    return rsi
+
 def get_last_signal():
     """Get the most recent signal from database"""
     try:
@@ -139,46 +179,71 @@ def get_last_signal():
         print(f"Error fetching last signal: {e}")
         return None
 
-def analyze_signal(prices, short_period=5, long_period=15, buy_threshold=0.008, sell_threshold=0.008):
-    """Analyze prices and generate trading signal
-
-    CORRECTED LOGIC:
-    - BUY: When short MA crosses significantly BELOW long MA (price dipping - buy opportunity)
-    - SELL: When short MA crosses significantly ABOVE long MA (price peaking - sell opportunity)
+def analyze_signal(prices, short_period=7, long_period=25, buy_threshold=0.003, sell_threshold=0.003, rsi_period=14, rsi_overbought=70, rsi_oversold=30):
+    """
+    Analyze prices and generate trading signal using MA Crossover + RSI Filter
+    
+    Strategy:
+    - BUY:  Short MA < Long MA (Dip) AND RSI < 30 (Oversold)
+    - SELL: Short MA > Long MA (Peak) AND RSI > 70 (Overbought)
     """
     if len(prices) < long_period:
         return {
             'type': 'HOLD',
             'price': prices[-1]['price'] if prices else 0,
             'confidence': 0,
-            'reason': 'Insufficient data'
+            'reason': 'Insufficient data for MA'
         }
 
-    # Calculate moving averages
+    # Calculate Indicators
     short_ma = calculate_moving_average(prices, short_period)
     long_ma = calculate_moving_average(prices, long_period)
-
+    rsi = calculate_rsi(prices, rsi_period)
+    
     current_price = prices[-1]['price']
+    
+    print(f"Analysis: Price=${current_price:.2f}, SMA({short_period})=${short_ma:.2f}, SMA({long_period})=${long_ma:.2f}, RSI({rsi_period})={rsi:.2f}")
 
-    # CORRECTED Calculate signal logic
-    # When short MA is significantly BELOW long MA -> downtrend -> BUY opportunity (buy the dip)
-    # When short MA is significantly ABOVE long MA -> uptrend -> SELL opportunity (take profit)
-    if short_ma < long_ma * (1 - buy_threshold):
+    signal_type = 'HOLD'
+    confidence = 50
+
+    # LOGIC 1: Moving Average Crossover (Trend/Dip check)
+    # If Short < Long by threshold -> Potential Dip (Buy?)
+    ma_buy_signal = short_ma < long_ma * (1 - buy_threshold)
+    
+    # If Short > Long by threshold -> Potential Peak (Sell?)
+    ma_sell_signal = short_ma > long_ma * (1 + sell_threshold)
+
+    # LOGIC 2: RSI Filter (Confirmation)
+    # Only buy if RSI is low (Oversold) -> Indicates panic selling, good entry
+    rsi_buy_signal = rsi < rsi_oversold
+    
+    # Only sell if RSI is high (Overbought) -> Indicates FOMO, good exit
+    rsi_sell_signal = rsi > rsi_overbought
+
+    # COMBINED LOGIC
+    if ma_buy_signal and rsi_buy_signal:
         signal_type = 'BUY'
-        confidence = min(((1 - short_ma / long_ma) / buy_threshold) * 100, 100)
-    elif short_ma > long_ma * (1 + sell_threshold):
+        # Confidence boosts if RSI is extremely low
+        confidence = min(100, 50 + (rsi_oversold - rsi) * 2)
+        
+    elif ma_sell_signal and rsi_sell_signal:
         signal_type = 'SELL'
-        confidence = min(((short_ma / long_ma - 1) / sell_threshold) * 100, 100)
-    else:
-        signal_type = 'HOLD'
-        confidence = 50
+        # Confidence boosts if RSI is extremely high
+        confidence = min(100, 50 + (rsi - rsi_overbought) * 2)
+        
+    elif ma_buy_signal: 
+        print(f"⚠️ MA says BUY but RSI ({rsi:.2f}) is not oversold (>{rsi_oversold}). Holding.")
+    elif ma_sell_signal:
+        print(f"⚠️ MA says SELL but RSI ({rsi:.2f}) is not overbought (<{rsi_overbought}). Holding.")
 
     return {
         'type': signal_type,
         'price': current_price,
         'confidence': round(confidence, 2),
         'short_ma': round(short_ma, 2),
-        'long_ma': round(long_ma, 2)
+        'long_ma': round(long_ma, 2),
+        'rsi': round(rsi, 2)
     }
 
 def store_signal(signal_data):
@@ -437,7 +502,10 @@ def lambda_handler(event, context):
             short_period=settings['short_ma_period'],
             long_period=settings['long_ma_period'],
             buy_threshold=settings['buy_threshold'],
-            sell_threshold=settings['sell_threshold']
+            sell_threshold=settings['sell_threshold'],
+            rsi_period=settings.get('rsi_period', 14),
+            rsi_overbought=settings.get('rsi_overbought', 70),
+            rsi_oversold=settings.get('rsi_oversold', 30)
         )
         
         # Get last signal to check if it changed
