@@ -33,11 +33,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Future<void> _loadSettings() async {
     try {
-      // Load from local storage first
       final prefs = await SharedPreferences.getInstance();
       final notifEnabled = prefs.getBool('notifications_enabled') ?? true;
-
-      // Try to load from backend
       final settings = await _bitcoinService.getSettings();
 
       if (mounted) {
@@ -48,7 +45,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
         });
       }
     } catch (e) {
-      // Use default settings if backend fails
       if (mounted) {
         final prefs = await SharedPreferences.getInstance();
         final notifEnabled = prefs.getBool('notifications_enabled') ?? true;
@@ -82,10 +78,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
         longMaPeriod: _longMaPeriod,
       );
 
-      // Save to backend
       await _bitcoinService.updateSettings(newSettings);
 
-      // Save notification preference locally
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('notifications_enabled', _notificationsEnabled);
 
@@ -96,9 +90,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
         });
 
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Settings saved successfully'),
+          SnackBar(
+            content: const Text('Settings saved successfully'),
             backgroundColor: AppColors.success,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
           ),
         );
       }
@@ -110,6 +108,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
           SnackBar(
             content: Text('Failed to save settings: $e'),
             backgroundColor: AppColors.error,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
           ),
         );
       }
@@ -130,28 +132,34 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Row(
-          children: [
-            Image.asset(
-              'assets/images/bitcoin-watcher-logo.png',
-              height: 32,
-              width: 32,
-            ),
-            const SizedBox(width: 12),
-            const Text('Settings'),
-          ],
-        ),
+        title: const Text('Settings'),
         actions: [
           if (_hasChanges())
-            TextButton(
-              onPressed: _isSaving ? null : _saveSettings,
-              child: _isSaving
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Text('Save'),
+            Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: TextButton(
+                onPressed: _isSaving ? null : _saveSettings,
+                style: TextButton.styleFrom(
+                  backgroundColor: AppColors.primary.withValues(alpha: 0.12),
+                  foregroundColor: AppColors.primary,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                ),
+                child: _isSaving
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: AppColors.primary,
+                        ),
+                      )
+                    : const Text('Save',
+                        style: TextStyle(fontWeight: FontWeight.w600)),
+              ),
             ),
         ],
       ),
@@ -163,7 +171,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Widget _buildBody() {
     return ListView(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       children: [
         _buildNotificationsSection(),
         const SizedBox(height: 24),
@@ -172,102 +180,167 @@ class _SettingsScreenState extends State<SettingsScreen> {
         _buildActionsSection(),
         const SizedBox(height: 24),
         _buildInfoSection(),
+        const SizedBox(height: 32),
       ],
     );
   }
 
+  Widget _buildSectionHeader(IconData icon, String title) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 4, bottom: 12),
+      child: Row(
+        children: [
+          Icon(icon, size: 16, color: AppColors.textTertiary),
+          const SizedBox(width: 8),
+          Text(
+            title.toUpperCase(),
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  letterSpacing: 1.2,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textTertiary,
+                ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildNotificationsSection() {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Notifications',
-              style: Theme.of(context).textTheme.headlineSmall,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSectionHeader(Icons.notifications_outlined, 'Notifications'),
+        Container(
+          decoration: AppDecorations.glassmorphicCard,
+          child: ListTile(
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+            leading: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: AppColors.primary.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(Icons.notifications_active_rounded,
+                  color: AppColors.primary, size: 20),
             ),
-            const SizedBox(height: 16),
-            SwitchListTile(
-              title: const Text('Enable Notifications'),
-              subtitle:
-                  const Text('Receive push notifications for buy/sell signals'),
+            title: Text(
+              'Push Notifications',
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontSize: 15,
+                  ),
+            ),
+            subtitle: Text(
+              'Receive alerts for buy/sell signals',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+            trailing: Switch(
               value: _notificationsEnabled,
               onChanged: (value) {
                 setState(() => _notificationsEnabled = value);
               },
             ),
-          ],
+          ),
         ),
-      ),
+      ],
     );
   }
 
   Widget _buildAlgorithmSection() {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Algorithm Settings',
-              style: Theme.of(context).textTheme.headlineSmall,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Adjust sensitivity of buy/sell signal detection',
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-            const SizedBox(height: 24),
-            _buildSliderSetting(
-              label: 'Buy Threshold',
-              value: _buyThreshold,
-              min: 0.001,
-              max: 0.02,
-              divisions: 19,
-              onChanged: (value) => setState(() => _buyThreshold = value),
-              valueLabel: '${(_buyThreshold * 100).toStringAsFixed(1)}%',
-            ),
-            const SizedBox(height: 16),
-            _buildSliderSetting(
-              label: 'Sell Threshold',
-              value: _sellThreshold,
-              min: 0.001,
-              max: 0.02,
-              divisions: 19,
-              onChanged: (value) => setState(() => _sellThreshold = value),
-              valueLabel: '${(_sellThreshold * 100).toStringAsFixed(1)}%',
-            ),
-            const SizedBox(height: 16),
-            _buildSliderSetting(
-              label: 'Short MA Period',
-              value: _shortMaPeriod.toDouble(),
-              min: 3,
-              max: 15,
-              divisions: 12,
-              onChanged: (value) =>
-                  setState(() => _shortMaPeriod = value.toInt()),
-              valueLabel: '$_shortMaPeriod minutes',
-            ),
-            const SizedBox(height: 16),
-            _buildSliderSetting(
-              label: 'Long MA Period',
-              value: _longMaPeriod.toDouble(),
-              min: 15,
-              max: 30,
-              divisions: 15,
-              onChanged: (value) =>
-                  setState(() => _longMaPeriod = value.toInt()),
-              valueLabel: '$_longMaPeriod minutes',
-            ),
-          ],
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSectionHeader(Icons.tune_rounded, 'Algorithm'),
+        Container(
+          decoration: AppDecorations.glassmorphicCard,
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Signal Sensitivity',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Adjust buy/sell signal detection thresholds',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+              const SizedBox(height: 24),
+              _buildSliderSetting(
+                icon: Icons.trending_up_rounded,
+                iconColor: AppColors.buy,
+                label: 'Buy Threshold',
+                value: _buyThreshold,
+                min: 0.001,
+                max: 0.02,
+                divisions: 19,
+                onChanged: (value) => setState(() => _buyThreshold = value),
+                valueLabel: '${(_buyThreshold * 100).toStringAsFixed(1)}%',
+              ),
+              const SizedBox(height: 20),
+              _buildSliderSetting(
+                icon: Icons.trending_down_rounded,
+                iconColor: AppColors.sell,
+                label: 'Sell Threshold',
+                value: _sellThreshold,
+                min: 0.001,
+                max: 0.02,
+                divisions: 19,
+                onChanged: (value) => setState(() => _sellThreshold = value),
+                valueLabel: '${(_sellThreshold * 100).toStringAsFixed(1)}%',
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                child: Divider(
+                  color: AppColors.cardBorder.withValues(alpha: 0.5),
+                ),
+              ),
+              Text(
+                'Moving Average Periods',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Configure short and long MA window sizes',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+              const SizedBox(height: 24),
+              _buildSliderSetting(
+                icon: Icons.speed_rounded,
+                iconColor: AppColors.info,
+                label: 'Short MA',
+                value: _shortMaPeriod.toDouble(),
+                min: 3,
+                max: 15,
+                divisions: 12,
+                onChanged: (value) =>
+                    setState(() => _shortMaPeriod = value.toInt()),
+                valueLabel: '$_shortMaPeriod min',
+              ),
+              const SizedBox(height: 20),
+              _buildSliderSetting(
+                icon: Icons.timeline_rounded,
+                iconColor: AppColors.warning,
+                label: 'Long MA',
+                value: _longMaPeriod.toDouble(),
+                min: 15,
+                max: 30,
+                divisions: 15,
+                onChanged: (value) =>
+                    setState(() => _longMaPeriod = value.toInt()),
+                valueLabel: '$_longMaPeriod min',
+              ),
+            ],
+          ),
         ),
-      ),
+      ],
     );
   }
 
   Widget _buildSliderSetting({
+    required IconData icon,
+    required Color iconColor,
     required String label,
     required double value,
     required double min,
@@ -280,112 +353,186 @@ class _SettingsScreenState extends State<SettingsScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              label,
-              style: Theme.of(context).textTheme.bodyLarge,
+            Icon(icon, size: 16, color: iconColor),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                label,
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      fontSize: 14,
+                    ),
+              ),
             ),
-            Text(
-              valueLabel,
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: AppColors.primary,
-                    fontWeight: FontWeight.bold,
-                  ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: AppColors.primary.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                valueLabel,
+                style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.w700,
+                    ),
+              ),
             ),
           ],
         ),
-        Slider(
-          value: value,
-          min: min,
-          max: max,
-          divisions: divisions,
-          onChanged: onChanged,
+        const SizedBox(height: 8),
+        SliderTheme(
+          data: SliderTheme.of(context).copyWith(
+            trackHeight: 4,
+            activeTrackColor: AppColors.primary,
+            inactiveTrackColor: AppColors.cardBorder,
+          ),
+          child: Slider(
+            value: value,
+            min: min,
+            max: max,
+            divisions: divisions,
+            onChanged: onChanged,
+          ),
         ),
       ],
     );
   }
 
   Widget _buildActionsSection() {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            ElevatedButton.icon(
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (context) => AlertDialog(
-                    title: const Text('Reset to Defaults'),
-                    content: const Text(
-                      'Are you sure you want to reset all settings to default values?',
-                    ),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(context),
-                        child: const Text('Cancel'),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                          _resetToDefaults();
-                        },
-                        child: const Text('Reset'),
-                      ),
-                    ],
-                  ),
-                );
-              },
-              icon: const Icon(Icons.restore),
-              label: const Text('Reset to Defaults'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.cardDark,
-                foregroundColor: AppColors.textPrimary,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSectionHeader(Icons.settings_backup_restore_rounded, 'Actions'),
+        Container(
+          decoration: AppDecorations.glassmorphicCard,
+          child: ListTile(
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+            leading: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: AppColors.warning.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(10),
               ),
+              child: const Icon(Icons.restore_rounded,
+                  color: AppColors.warning, size: 20),
             ),
-          ],
+            title: Text(
+              'Reset to Defaults',
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontSize: 15,
+                  ),
+            ),
+            subtitle: Text(
+              'Restore all settings to original values',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+            trailing: const Icon(
+              Icons.chevron_right_rounded,
+              color: AppColors.textTertiary,
+              size: 20,
+            ),
+            onTap: () {
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  backgroundColor: AppColors.surfaceDark,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                    side: BorderSide(
+                      color: AppColors.cardBorder.withValues(alpha: 0.5),
+                    ),
+                  ),
+                  title: const Text('Reset to Defaults'),
+                  content: const Text(
+                    'Are you sure you want to reset all settings to default values?',
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text(
+                        'Cancel',
+                        style: TextStyle(color: AppColors.textSecondary),
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        _resetToDefaults();
+                      },
+                      child: const Text(
+                        'Reset',
+                        style: TextStyle(color: AppColors.warning),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
         ),
-      ),
+      ],
     );
   }
 
   Widget _buildInfoSection() {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'About',
-              style: Theme.of(context).textTheme.headlineSmall,
-            ),
-            const SizedBox(height: 12),
-            _buildInfoRow('Version', '1.0.0'),
-            const SizedBox(height: 8),
-            _buildInfoRow('Algorithm', 'Moving Average Crossover'),
-            const SizedBox(height: 8),
-            _buildInfoRow('Data Source', 'Binance API'),
-          ],
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSectionHeader(Icons.info_outline_rounded, 'About'),
+        Container(
+          decoration: AppDecorations.glassmorphicCard,
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          child: Column(
+            children: [
+              _buildInfoRow(
+                Icons.tag_rounded,
+                'Version',
+                '1.0.0',
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child:
+                    Divider(color: AppColors.cardBorder.withValues(alpha: 0.5)),
+              ),
+              _buildInfoRow(
+                Icons.analytics_outlined,
+                'Algorithm',
+                'MA Crossover',
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child:
+                    Divider(color: AppColors.cardBorder.withValues(alpha: 0.5)),
+              ),
+              _buildInfoRow(
+                Icons.cloud_outlined,
+                'Data Source',
+                'Binance API',
+              ),
+            ],
+          ),
         ),
-      ),
+      ],
     );
   }
 
-  Widget _buildInfoRow(String label, String value) {
+  Widget _buildInfoRow(IconData icon, String label, String value) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
+        Icon(icon, size: 16, color: AppColors.textTertiary),
+        const SizedBox(width: 12),
         Text(
           label,
           style: Theme.of(context).textTheme.bodyMedium,
         ),
+        const Spacer(),
         Text(
           value,
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: AppColors.textSecondary,
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.w500,
               ),
         ),
       ],

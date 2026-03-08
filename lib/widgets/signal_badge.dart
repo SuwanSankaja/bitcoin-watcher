@@ -20,20 +20,28 @@ class SignalBadge extends StatelessWidget {
 
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: fontSize * 0.8,
-        vertical: fontSize * 0.4,
+        horizontal: fontSize * 0.9,
+        vertical: fontSize * 0.35,
       ),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.15),
-        border: Border.all(color: color, width: 1.5),
-        borderRadius: BorderRadius.circular(fontSize * 0.5),
+        color: color.withValues(alpha: 0.12),
+        border: Border.all(color: color.withValues(alpha: 0.4), width: 1.5),
+        borderRadius: BorderRadius.circular(fontSize * 0.6),
+        boxShadow: [
+          BoxShadow(
+            color: color.withValues(alpha: 0.1),
+            blurRadius: 8,
+            spreadRadius: 0,
+          ),
+        ],
       ),
       child: Text(
         label,
         style: TextStyle(
           color: color,
           fontSize: fontSize,
-          fontWeight: FontWeight.bold,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 0.5,
         ),
       ),
     );
