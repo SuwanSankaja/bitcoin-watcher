@@ -40,7 +40,7 @@ fi
 # ── Load token (priority: env var → .env → .doppler-token) ───────────────────
 if [ -z "$DOPPLER_SERVICE_TOKEN" ]; then
   if [ -f "$ENV_FILE" ]; then
-    DOPPLER_SERVICE_TOKEN=$(grep -E "^DOPPLER_SERVICE_TOKEN=" "$ENV_FILE" | cut -d '=' -f2- | tr -d '[:space:]"'"'"')
+    DOPPLER_SERVICE_TOKEN=$(grep -E "^DOPPLER_SERVICE_TOKEN=" "$ENV_FILE" | cut -d '=' -f2- | tr -d '[:space:]"' | tr -d "'")
   fi
 fi
 if [ -z "$DOPPLER_SERVICE_TOKEN" ] && [ -f "$DOPPLER_TOKEN_FILE" ]; then
