@@ -7,7 +7,7 @@ import '../utils/theme.dart';
 import '../widgets/widgets.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  const HomeScreen({super.key});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -15,11 +15,11 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final BitcoinService _bitcoinService = BitcoinService();
-  
+
   BtcPrice? _currentPrice;
   Signal? _currentSignal;
   List<BtcPrice> _priceHistory = [];
-  
+
   bool _isLoading = true;
   String? _error;
 
@@ -42,7 +42,7 @@ class _HomeScreenState extends State<HomeScreen> {
     try {
       final priceData = await _bitcoinService.getCurrentPrice();
       final history = await _bitcoinService.getPriceHistory(hours: 24);
-      
+
       if (mounted) {
         setState(() {
           _currentPrice = priceData['price'];
@@ -264,25 +264,29 @@ class _HomeScreenState extends State<HomeScreen> {
             ))
         .toList();
 
-    final minPrice = _priceHistory.map((p) => p.price).reduce((a, b) => a < b ? a : b);
-    final maxPrice = _priceHistory.map((p) => p.price).reduce((a, b) => a > b ? a : b);
-    
+    final minPrice =
+        _priceHistory.map((p) => p.price).reduce((a, b) => a < b ? a : b);
+    final maxPrice =
+        _priceHistory.map((p) => p.price).reduce((a, b) => a > b ? a : b);
+
     // Add padding to price range for better visualization
     final priceRange = maxPrice - minPrice;
     final padding = priceRange > 0 ? priceRange * 0.1 : maxPrice * 0.01;
     final chartMinY = minPrice - padding;
     final chartMaxY = maxPrice + padding;
-    
+
     // Calculate intervals - ensure we have 4-5 grid lines
     final displayRange = chartMaxY - chartMinY;
     final horizontalInterval = displayRange / 4;
-    
+
     // Calculate good Y-axis bounds that align with intervals
     final yMin = (chartMinY / horizontalInterval).floor() * horizontalInterval;
     final yMax = (chartMaxY / horizontalInterval).ceil() * horizontalInterval;
-    
+
     // Show only 5-6 time labels evenly distributed
-    final timeInterval = _priceHistory.length > 5 ? (_priceHistory.length / 5).floorToDouble() : 1.0;
+    final timeInterval = _priceHistory.length > 5
+        ? (_priceHistory.length / 5).floorToDouble()
+        : 1.0;
 
     return LineChart(
       LineChartData(
@@ -293,13 +297,13 @@ class _HomeScreenState extends State<HomeScreen> {
           verticalInterval: timeInterval,
           getDrawingHorizontalLine: (value) {
             return FlLine(
-              color: AppColors.chartGrid.withOpacity(0.3),
+              color: AppColors.chartGrid.withValues(alpha: 0.3),
               strokeWidth: 0.8,
             );
           },
           getDrawingVerticalLine: (value) {
             return FlLine(
-              color: AppColors.chartGrid.withOpacity(0.2),
+              color: AppColors.chartGrid.withValues(alpha: 0.2),
               strokeWidth: 0.8,
             );
           },
@@ -332,9 +336,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Text(
                     Formatters.formatTime(time),
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      fontSize: 10,
-                      color: Colors.grey[400],
-                    ),
+                          fontSize: 10,
+                          color: Colors.grey[400],
+                        ),
                   ),
                 );
               },
@@ -350,7 +354,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 if (value <= yMin || value >= yMax) {
                   return const SizedBox();
                 }
-                
+
                 // Format price with K suffix
                 final priceK = value / 1000;
                 return Padding(
@@ -358,9 +362,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Text(
                     '\$${priceK.toStringAsFixed(1)}K',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      fontSize: 10,
-                      color: Colors.grey[400],
-                    ),
+                          fontSize: 10,
+                          color: Colors.grey[400],
+                        ),
                     textAlign: TextAlign.right,
                   ),
                 );
@@ -371,7 +375,7 @@ class _HomeScreenState extends State<HomeScreen> {
         borderData: FlBorderData(
           show: true,
           border: Border.all(
-            color: AppColors.chartGrid.withOpacity(0.3),
+            color: AppColors.chartGrid.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -389,7 +393,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   final priceData = _priceHistory[index];
                   return LineTooltipItem(
                     '${Formatters.formatPrice(priceData.price)}\n${Formatters.formatTime(priceData.timestamp)}',
-                    TextStyle(
+                    const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
                       fontSize: 12,
@@ -404,7 +408,7 @@ class _HomeScreenState extends State<HomeScreen> {
           getTouchedSpotIndicator: (barData, spotIndexes) {
             return spotIndexes.map((index) {
               return TouchedSpotIndicatorData(
-                FlLine(
+                const FlLine(
                   color: AppColors.primary,
                   strokeWidth: 2,
                 ),
@@ -436,8 +440,8 @@ class _HomeScreenState extends State<HomeScreen> {
               show: true,
               gradient: LinearGradient(
                 colors: [
-                  AppColors.chartLine.withOpacity(0.3),
-                  AppColors.chartLine.withOpacity(0.0),
+                  AppColors.chartLine.withValues(alpha: 0.3),
+                  AppColors.chartLine.withValues(alpha: 0.0),
                 ],
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
@@ -461,18 +465,22 @@ class _HomeScreenState extends State<HomeScreen> {
               style: Theme.of(context).textTheme.headlineSmall,
             ),
             const SizedBox(height: 12),
-            _buildInfoRow(Icons.trending_up, 'BUY', 'Strong upward momentum detected', AppColors.buy),
+            _buildInfoRow(Icons.trending_up, 'BUY',
+                'Strong upward momentum detected', AppColors.buy),
             const SizedBox(height: 8),
-            _buildInfoRow(Icons.trending_down, 'SELL', 'Strong downward momentum detected', AppColors.sell),
+            _buildInfoRow(Icons.trending_down, 'SELL',
+                'Strong downward momentum detected', AppColors.sell),
             const SizedBox(height: 8),
-            _buildInfoRow(Icons.trending_flat, 'HOLD', 'No clear trend, wait for better opportunity', AppColors.hold),
+            _buildInfoRow(Icons.trending_flat, 'HOLD',
+                'No clear trend, wait for better opportunity', AppColors.hold),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildInfoRow(IconData icon, String label, String description, Color color) {
+  Widget _buildInfoRow(
+      IconData icon, String label, String description, Color color) {
     return Row(
       children: [
         Icon(icon, color: color, size: 20),

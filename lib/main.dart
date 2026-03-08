@@ -14,21 +14,21 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // Initialize Firebase
   await Firebase.initializeApp();
-  
+
   // Set up background message handler
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-  
+
   // Initialize Notification Service
   final notificationService = NotificationService();
   await notificationService.initialize();
-  
+
   // Auto-subscribe to bitcoin-signals topic
   await notificationService.subscribeToTopic('bitcoin-signals');
   print('Subscribed to bitcoin-signals topic');
-  
+
   runApp(BitcoinWatcherApp(notificationService: notificationService));
 }
 
@@ -36,9 +36,9 @@ class BitcoinWatcherApp extends StatelessWidget {
   final NotificationService notificationService;
 
   const BitcoinWatcherApp({
-    Key? key,
+    super.key,
     required this.notificationService,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -55,9 +55,9 @@ class MainNavigator extends StatefulWidget {
   final NotificationService notificationService;
 
   const MainNavigator({
-    Key? key,
+    super.key,
     required this.notificationService,
-  }) : super(key: key);
+  });
 
   @override
   State<MainNavigator> createState() => _MainNavigatorState();
@@ -65,13 +65,13 @@ class MainNavigator extends StatefulWidget {
 
 class _MainNavigatorState extends State<MainNavigator> {
   int _currentIndex = 0;
-  
+
   late final List<Widget> _screens;
 
   @override
   void initState() {
     super.initState();
-    
+
     _screens = [
       const HomeScreen(),
       const HistoryScreen(),

@@ -7,10 +7,10 @@ class SignalBadge extends StatelessWidget {
   final double? size;
 
   const SignalBadge({
-    Key? key,
+    super.key,
     required this.signalType,
     this.size,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +24,7 @@ class SignalBadge extends StatelessWidget {
         vertical: fontSize * 0.4,
       ),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.15),
+        color: color.withValues(alpha: 0.15),
         border: Border.all(color: color, width: 1.5),
         borderRadius: BorderRadius.circular(fontSize * 0.5),
       ),

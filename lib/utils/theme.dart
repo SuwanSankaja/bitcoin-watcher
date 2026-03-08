@@ -40,21 +40,17 @@ class AppTheme {
     brightness: Brightness.dark,
     primaryColor: AppColors.primary,
     scaffoldBackgroundColor: AppColors.backgroundDark,
-    
     colorScheme: const ColorScheme.dark(
       primary: AppColors.primary,
       secondary: AppColors.primaryLight,
       surface: AppColors.surfaceDark,
-      background: AppColors.backgroundDark,
       error: AppColors.error,
     ),
-
     cardTheme: const CardThemeData(
       color: AppColors.cardDark,
       elevation: 2,
       margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
     ),
-
     appBarTheme: const AppBarTheme(
       backgroundColor: AppColors.surfaceDark,
       elevation: 0,
@@ -66,7 +62,6 @@ class AppTheme {
         fontWeight: FontWeight.bold,
       ),
     ),
-
     textTheme: const TextTheme(
       headlineLarge: TextStyle(
         fontSize: 32,
@@ -96,7 +91,6 @@ class AppTheme {
         color: AppColors.textTertiary,
       ),
     ),
-
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         backgroundColor: AppColors.primary,
@@ -107,19 +101,18 @@ class AppTheme {
         ),
       ),
     ),
-
     switchTheme: SwitchThemeData(
-      thumbColor: MaterialStateProperty.resolveWith((states) {
-        if (states.contains(MaterialState.selected)) {
+      thumbColor: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.selected)) {
           return AppColors.primary;
         }
         return AppColors.textTertiary;
       }),
-      trackColor: MaterialStateProperty.resolveWith((states) {
-        if (states.contains(MaterialState.selected)) {
-          return AppColors.primaryLight.withOpacity(0.5);
+      trackColor: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.selected)) {
+          return AppColors.primaryLight.withValues(alpha: 0.5);
         }
-        return AppColors.textTertiary.withOpacity(0.3);
+        return AppColors.textTertiary.withValues(alpha: 0.3);
       }),
     ),
   );

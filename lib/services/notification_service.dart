@@ -1,6 +1,5 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'dart:io' show Platform;
 
 class NotificationService {
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
@@ -58,7 +57,8 @@ class NotificationService {
 
     if (settings.authorizationStatus == AuthorizationStatus.authorized) {
       print('User granted notification permission');
-    } else if (settings.authorizationStatus == AuthorizationStatus.provisional) {
+    } else if (settings.authorizationStatus ==
+        AuthorizationStatus.provisional) {
       print('User granted provisional notification permission');
     } else {
       print('User declined or has not accepted notification permission');
@@ -66,7 +66,8 @@ class NotificationService {
   }
 
   Future<void> _initializeLocalNotifications() async {
-    const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const androidSettings =
+        AndroidInitializationSettings('@mipmap/ic_launcher');
     const iosSettings = DarwinInitializationSettings(
       requestAlertPermission: true,
       requestBadgePermission: true,
@@ -90,10 +91,8 @@ class NotificationService {
 
   void _handleForegroundMessage(RemoteMessage message) {
     print('Received foreground message: ${message.messageId}');
-    
-    final notification = message.notification;
-    final android = message.notification?.android;
 
+    final notification = message.notification;
     if (notification != null) {
       _showLocalNotification(
         title: notification.title ?? 'Bitcoin Watcher',

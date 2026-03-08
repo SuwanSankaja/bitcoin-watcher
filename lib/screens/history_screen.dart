@@ -6,7 +6,7 @@ import '../utils/theme.dart';
 import '../widgets/widgets.dart';
 
 class HistoryScreen extends StatefulWidget {
-  const HistoryScreen({Key? key}) : super(key: key);
+  const HistoryScreen({super.key});
 
   @override
   State<HistoryScreen> createState() => _HistoryScreenState();
@@ -14,7 +14,7 @@ class HistoryScreen extends StatefulWidget {
 
 class _HistoryScreenState extends State<HistoryScreen> {
   final BitcoinService _bitcoinService = BitcoinService();
-  
+
   List<NotificationItem> _notifications = [];
   bool _isLoading = true;
   String? _error;
@@ -28,7 +28,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
   Future<void> _loadHistory() async {
     try {
       final notifications = await _bitcoinService.getSignalHistory(limit: 100);
-      
+
       if (mounted) {
         setState(() {
           _notifications = notifications;
@@ -154,7 +154,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: signalColor.withOpacity(0.15),
+                  color: signalColor.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(
@@ -172,9 +172,10 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       children: [
                         Text(
                           notification.title,
-                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
+                          style:
+                              Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
                         ),
                         const SizedBox(width: 8),
                         SignalBadge(
@@ -193,7 +194,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     const SizedBox(height: 8),
                     Row(
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.access_time,
                           size: 14,
                           color: AppColors.textTertiary,
@@ -204,7 +205,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                           style: Theme.of(context).textTheme.bodySmall,
                         ),
                         const SizedBox(width: 16),
-                        Icon(
+                        const Icon(
                           Icons.attach_money,
                           size: 14,
                           color: AppColors.textTertiary,
@@ -267,9 +268,11 @@ class _HistoryScreenState extends State<HistoryScreen> {
               const SizedBox(height: 16),
               _buildDetailRow('Message', notification.message),
               const SizedBox(height: 16),
-              _buildDetailRow('Price', Formatters.formatPrice(notification.price)),
+              _buildDetailRow(
+                  'Price', Formatters.formatPrice(notification.price)),
               const SizedBox(height: 16),
-              _buildDetailRow('Timestamp', Formatters.formatFullDateTime(notification.timestamp)),
+              _buildDetailRow('Timestamp',
+                  Formatters.formatFullDateTime(notification.timestamp)),
               const SizedBox(height: 24),
             ],
           ),

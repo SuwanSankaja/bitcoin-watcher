@@ -6,7 +6,7 @@ import '../utils/theme.dart';
 import '../widgets/widgets.dart';
 
 class SettingsScreen extends StatefulWidget {
-  const SettingsScreen({Key? key}) : super(key: key);
+  const SettingsScreen({super.key});
 
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();
@@ -14,11 +14,11 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   final BitcoinService _bitcoinService = BitcoinService();
-  
+
   AppSettings _settings = AppSettings();
   bool _isLoading = true;
   bool _isSaving = false;
-  
+
   bool _notificationsEnabled = true;
   double _buyThreshold = 0.005;
   double _sellThreshold = 0.005;
@@ -36,10 +36,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
       // Load from local storage first
       final prefs = await SharedPreferences.getInstance();
       final notifEnabled = prefs.getBool('notifications_enabled') ?? true;
-      
+
       // Try to load from backend
       final settings = await _bitcoinService.getSettings();
-      
+
       if (mounted) {
         setState(() {
           _settings = settings.copyWith(notificationsEnabled: notifEnabled);
@@ -52,7 +52,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       if (mounted) {
         final prefs = await SharedPreferences.getInstance();
         final notifEnabled = prefs.getBool('notifications_enabled') ?? true;
-        
+
         setState(() {
           _settings = AppSettings(notificationsEnabled: notifEnabled);
           _initializeFields();
@@ -72,7 +72,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Future<void> _saveSettings() async {
     setState(() => _isSaving = true);
-    
+
     try {
       final newSettings = AppSettings(
         notificationsEnabled: _notificationsEnabled,
@@ -84,17 +84,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
       // Save to backend
       await _bitcoinService.updateSettings(newSettings);
-      
+
       // Save notification preference locally
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('notifications_enabled', _notificationsEnabled);
-      
+
       if (mounted) {
         setState(() {
           _settings = newSettings;
           _isSaving = false;
         });
-        
+
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Settings saved successfully'),
@@ -105,7 +105,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     } catch (e) {
       if (mounted) {
         setState(() => _isSaving = false);
-        
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Failed to save settings: $e'),
@@ -190,7 +190,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
             const SizedBox(height: 16),
             SwitchListTile(
               title: const Text('Enable Notifications'),
-              subtitle: const Text('Receive push notifications for buy/sell signals'),
+              subtitle:
+                  const Text('Receive push notifications for buy/sell signals'),
               value: _notificationsEnabled,
               onChanged: (value) {
                 setState(() => _notificationsEnabled = value);
@@ -245,7 +246,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               min: 3,
               max: 15,
               divisions: 12,
-              onChanged: (value) => setState(() => _shortMaPeriod = value.toInt()),
+              onChanged: (value) =>
+                  setState(() => _shortMaPeriod = value.toInt()),
               valueLabel: '$_shortMaPeriod minutes',
             ),
             const SizedBox(height: 16),
@@ -255,7 +257,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               min: 15,
               max: 30,
               divisions: 15,
-              onChanged: (value) => setState(() => _longMaPeriod = value.toInt()),
+              onChanged: (value) =>
+                  setState(() => _longMaPeriod = value.toInt()),
               valueLabel: '$_longMaPeriod minutes',
             ),
           ],
