@@ -61,6 +61,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
             const Text('Signal History'),
           ],
         ),
+        title: const Text('Signals'),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),

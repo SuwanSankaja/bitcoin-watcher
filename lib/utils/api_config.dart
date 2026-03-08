@@ -9,6 +9,7 @@ class ApiConfig {
   // API Endpoints
   static const String currentPriceEndpoint = '/currentPrice';
   static const String signalHistoryEndpoint = '/signalHistory';
+  static const String tradesHistoryEndpoint = '/tradesHistory';
   static const String settingsEndpoint = '/settings';
   static const String priceHistoryEndpoint = '/priceHistory';
 

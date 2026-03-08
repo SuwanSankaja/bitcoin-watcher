@@ -74,14 +74,15 @@ class _MainNavigatorState extends State<MainNavigator> {
 
     _screens = [
       const HomeScreen(),
+      const TradesScreen(),
       const HistoryScreen(),
       const SettingsScreen(),
     ];
 
     // Handle notification taps
     widget.notificationService.onNotificationTap = (signalId) {
-      // Navigate to history screen when notification is tapped
-      setState(() => _currentIndex = 1);
+      // Navigate to signals screen when notification is tapped
+      setState(() => _currentIndex = 2);
     };
   }
 
@@ -114,6 +115,35 @@ class _MainNavigatorState extends State<MainNavigator> {
             label: 'Settings',
           ),
         ],
+        ),
+        child: NavigationBar(
+          selectedIndex: _currentIndex,
+          onDestinationSelected: (index) {
+            setState(() => _currentIndex = index);
+          },
+          destinations: const [
+            NavigationDestination(
+              icon: Icon(Icons.home_outlined),
+              selectedIcon: Icon(Icons.home_rounded),
+              label: 'Home',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.swap_horiz_outlined),
+              selectedIcon: Icon(Icons.swap_horiz_rounded),
+              label: 'Trades',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.notifications_outlined),
+              selectedIcon: Icon(Icons.notifications_rounded),
+              label: 'Signals',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.settings_outlined),
+              selectedIcon: Icon(Icons.settings_rounded),
+              label: 'Settings',
+            ),
+          ],
+        ),
       ),
     );
   }
