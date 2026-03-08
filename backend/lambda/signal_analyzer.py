@@ -55,8 +55,8 @@ def get_settings_from_db():
     """Fetch settings from MongoDB, return defaults if not found"""
     default_settings = {
         'notifications_enabled': True,
-        'buy_threshold': 0.003,      # 0.3% - More conservative
-        'sell_threshold': 0.003,     # 0.3% - More conservative
+        'buy_threshold': 0.001,      # 0.1% - Realistic for 30-min window
+        'sell_threshold': 0.001,     # 0.1% - Realistic for 30-min window
         'short_ma_period': 7,        # 7 min - Less noise
         'long_ma_period': 25,        # 25 min - Better trend
         'rsi_period': 14,            # Standard RSI period
@@ -181,11 +181,14 @@ def get_last_signal():
 
 def analyze_signal(prices, short_period=7, long_period=25, buy_threshold=0.003, sell_threshold=0.003, rsi_period=14, rsi_overbought=70, rsi_oversold=30):
     """
-    Analyze prices and generate trading signal using MA Crossover + RSI Filter
-    
+    Analyze prices and generate trading signal using MA Crossover with RSI confidence modifier.
+
     Strategy:
-    - BUY:  Short MA < Long MA (Dip) AND RSI < 30 (Oversold)
-    - SELL: Short MA > Long MA (Peak) AND RSI > 70 (Overbought)
+    - BUY:  Short MA < Long MA by threshold (primary trigger)
+            RSI < rsi_oversold boosts confidence; RSI > 50 reduces it
+    - SELL: Short MA > Long MA by threshold (primary trigger)
+            RSI > rsi_overbought boosts confidence; RSI < 50 reduces it
+    - HOLD: MA threshold not met in either direction
     """
     if len(prices) < long_period:
         return {
@@ -199,43 +202,35 @@ def analyze_signal(prices, short_period=7, long_period=25, buy_threshold=0.003, 
     short_ma = calculate_moving_average(prices, short_period)
     long_ma = calculate_moving_average(prices, long_period)
     rsi = calculate_rsi(prices, rsi_period)
-    
+
     current_price = prices[-1]['price']
-    
+
     print(f"Analysis: Price=${current_price:.2f}, SMA({short_period})=${short_ma:.2f}, SMA({long_period})=${long_ma:.2f}, RSI({rsi_period})={rsi:.2f}")
 
     signal_type = 'HOLD'
     confidence = 50
 
-    # LOGIC 1: Moving Average Crossover (Trend/Dip check)
-    # If Short < Long by threshold -> Potential Dip (Buy?)
+    # Primary trigger: MA crossover beyond threshold
     ma_buy_signal = short_ma < long_ma * (1 - buy_threshold)
-    
-    # If Short > Long by threshold -> Potential Peak (Sell?)
     ma_sell_signal = short_ma > long_ma * (1 + sell_threshold)
 
-    # LOGIC 2: RSI Filter (Confirmation)
-    # Only buy if RSI is low (Oversold) -> Indicates panic selling, good entry
-    rsi_buy_signal = rsi < rsi_oversold
-    
-    # Only sell if RSI is high (Overbought) -> Indicates FOMO, good exit
-    rsi_sell_signal = rsi > rsi_overbought
-
-    # COMBINED LOGIC
-    if ma_buy_signal and rsi_buy_signal:
+    if ma_buy_signal:
         signal_type = 'BUY'
-        # Confidence boosts if RSI is extremely low
-        confidence = min(100, 50 + (rsi_oversold - rsi) * 2)
-        
-    elif ma_sell_signal and rsi_sell_signal:
-        signal_type = 'SELL'
-        # Confidence boosts if RSI is extremely high
-        confidence = min(100, 50 + (rsi - rsi_overbought) * 2)
-        
-    elif ma_buy_signal: 
-        print(f"⚠️ MA says BUY but RSI ({rsi:.2f}) is not oversold (>{rsi_oversold}). Holding.")
+        # Base confidence 60; RSI below oversold adds up to +30, above 50 subtracts up to -20
+        base = 60
+        rsi_bonus = max(-20, min(30, (rsi_oversold - rsi) * 1.5))
+        confidence = min(100, max(40, base + rsi_bonus))
+        rsi_label = "oversold ✅" if rsi < rsi_oversold else ("neutral ⚠️" if rsi < 50 else "overbought ❌")
+        print(f"BUY signal: MA divergence {((long_ma - short_ma) / long_ma * 100):.3f}%, RSI={rsi:.2f} ({rsi_label})")
+
     elif ma_sell_signal:
-        print(f"⚠️ MA says SELL but RSI ({rsi:.2f}) is not overbought (<{rsi_overbought}). Holding.")
+        signal_type = 'SELL'
+        # Base confidence 60; RSI above overbought adds up to +30, below 50 subtracts up to -20
+        base = 60
+        rsi_bonus = max(-20, min(30, (rsi - rsi_overbought) * 1.5))
+        confidence = min(100, max(40, base + rsi_bonus))
+        rsi_label = "overbought ✅" if rsi > rsi_overbought else ("neutral ⚠️" if rsi > 50 else "oversold ❌")
+        print(f"SELL signal: MA divergence {((short_ma - long_ma) / long_ma * 100):.3f}%, RSI={rsi:.2f} ({rsi_label})")
 
     return {
         'type': signal_type,

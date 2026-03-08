@@ -27,6 +27,8 @@ dependencies:
   # UI
   cupertino_icons: ^1.0.2
   intl: ^0.18.1
+  google_fonts: ^6.1.0
+  shimmer: ^3.0.0
   
   # Local Storage
   shared_preferences: ^2.2.2
