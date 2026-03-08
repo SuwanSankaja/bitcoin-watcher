@@ -8,13 +8,6 @@ on:
       - 'backend/lambda/**'
       - 'backend/requirements.txt'
       - '.github/workflows/deploy.yml'
-  pull_request:
-    branches:
-      - prod
-    paths:
-      - 'backend/lambda/**'
-      - 'backend/requirements.txt'
-      - 'backend/tests/**'
 
 jobs:
   deploy:
