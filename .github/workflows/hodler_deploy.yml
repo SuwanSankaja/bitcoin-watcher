@@ -1,0 +1,216 @@
+name: hodler_deploy
+
+on:
+  push:
+    branches:
+      - hodler
+    paths:
+      - 'backend/lambda_hodler/**'
+      - 'backend/requirements_hodler.txt'
+      - '.github/workflows/hodler_deploy.yml'
+
+jobs:
+  deploy:
+    name: Deploy Hodler Lambda Functions
+    runs-on: ubuntu-latest
+    environment: hodler
+
+    steps:
+      # ── 1. Checkout ──────────────────────────────────────────────────────────
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # ── 2. Fetch secrets from Doppler (hodler environment) ───────────────────
+      - name: Fetch secrets from Doppler
+        uses: dopplerhq/secrets-fetch-action@v1.3.0
+        with:
+          doppler-token: ${{ secrets.DOPPLER_TOKEN }}
+          inject-env-vars: true
+        # Injects: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY,
+        #          AWS_ACCOUNT_ID, APIGW_REST_API_ID into env
+
+      # ── 3. Configure AWS credentials ─────────────────────────────────────────
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-1
+
+      # ── 4. Set up Python ─────────────────────────────────────────────────────
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      # ── 5. Package hodler Lambda code + dependencies ──────────────────────────
+      - name: Package Hodler Lambda functions
+        run: |
+          cd backend/lambda_hodler
+          mkdir -p package
+
+          # Install deps into package/ (skip boto3/botocore — in Lambda runtime)
+          pip3 install \
+            --target ./package \
+            --no-deps \
+            -r ../requirements_hodler.txt
+
+          pip3 install \
+            --target ./package \
+            pymongo==4.6.1 \
+            requests==2.31.0 \
+            firebase-admin==6.4.0 \
+            websocket-client==1.7.0 \
+            pytz==2024.1
+
+          # Remove boto3/botocore (provided by Lambda runtime) to keep zip small
+          rm -rf package/boto3* package/botocore* package/s3transfer* package/dateutil*
+
+          # Copy Lambda source files
+          cp *.py ./package/
+
+          # Create zip
+          cd package
+          zip -r ../backend_hodler.zip . -x "*__pycache__*" "*.pyc" "*.pyo"
+          cd ..
+
+          echo "📦 Hodler package size: $(du -sh backend_hodler.zip | cut -f1)"
+
+      # ── 6. Upload zip to S3 ───────────────────────────────────────────────────
+      - name: Upload to S3
+        run: |
+          BUCKET="bitcoin-watcher-hodler-deploy-${{ env.AWS_ACCOUNT_ID }}-ap-northeast-1"
+
+          # Create bucket if it doesn't exist
+          if ! aws s3 ls "s3://$BUCKET" 2>/dev/null; then
+            aws s3 mb "s3://$BUCKET" --region ap-northeast-1
+          fi
+
+          aws s3 cp backend/lambda_hodler/backend_hodler.zip "s3://$BUCKET/backend_hodler.zip"
+          echo "DEPLOY_BUCKET=$BUCKET" >> $GITHUB_ENV
+
+      # ── 7. Deploy Lambda functions ────────────────────────────────────────────
+      - name: Deploy Lambda - price-listener (hodler)
+        run: |
+          aws lambda update-function-code \
+            --region ap-northeast-1 \
+            --function-name bitcoin-watcher-price-listener \
+            --s3-bucket ${{ env.DEPLOY_BUCKET }} \
+            --s3-key backend_hodler.zip \
+            --output text --query 'LastModified'
+
+      - name: Deploy Lambda - signal-analyzer (hodler)
+        run: |
+          aws lambda update-function-code \
+            --region ap-northeast-1 \
+            --function-name bitcoin-watcher-signal-analyzer \
+            --s3-bucket ${{ env.DEPLOY_BUCKET }} \
+            --s3-key backend_hodler.zip \
+            --output text --query 'LastModified'
+
+      - name: Deploy Lambda - api-handler (hodler)
+        run: |
+          aws lambda update-function-code \
+            --region ap-northeast-1 \
+            --function-name bitcoin-watcher-api-handler \
+            --s3-bucket ${{ env.DEPLOY_BUCKET }} \
+            --s3-key backend_hodler.zip \
+            --output text --query 'LastModified'
+
+      # ── 8. Wait for Lambda updates ────────────────────────────────────────────
+      - name: Wait for Lambda updates
+        run: |
+          for fn in bitcoin-watcher-price-listener bitcoin-watcher-signal-analyzer bitcoin-watcher-api-handler; do
+            echo "⏳ Waiting for $fn..."
+            aws lambda wait function-updated \
+              --region ap-northeast-1 \
+              --function-name $fn
+            echo "✅ $fn is ready"
+          done
+
+      # ── 9. Re-deploy API Gateway ──────────────────────────────────────────────
+      - name: Re-deploy API Gateway (prod stage)
+        run: |
+          DEPLOYMENT_ID=$(aws apigateway create-deployment \
+            --region ap-northeast-1 \
+            --rest-api-id ${{ env.APIGW_REST_API_ID }} \
+            --stage-name prod \
+            --description "Hodler deploy — commit: ${{ github.sha }}" \
+            --output text --query 'id')
+          echo "✅ API Gateway deployed: $DEPLOYMENT_ID"
+
+      # ── 10. Cleanup S3 ────────────────────────────────────────────────────────
+      - name: Cleanup S3 bucket
+        if: always()
+        run: |
+          BUCKET="bitcoin-watcher-hodler-deploy-${{ env.AWS_ACCOUNT_ID }}-ap-northeast-1"
+          if aws s3 ls "s3://$BUCKET" 2>/dev/null; then
+            aws s3 rb "s3://$BUCKET" --force
+            echo "✅ Cleaned up S3 bucket: $BUCKET"
+          else
+            echo "ℹ️  Bucket $BUCKET does not exist, skipping cleanup."
+          fi
+
+      # ── 11. Deployment summary ────────────────────────────────────────────────
+      - name: Deployment summary
+        if: success()
+        run: |
+          echo "## ✅ Hodler Deployment Successful" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Resource | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|---|---|" >> $GITHUB_STEP_SUMMARY
+          echo "| bitcoin-watcher-price-listener | ✅ Updated (hodler) |" >> $GITHUB_STEP_SUMMARY
+          echo "| bitcoin-watcher-signal-analyzer | ✅ Updated (hodler) |" >> $GITHUB_STEP_SUMMARY
+          echo "| bitcoin-watcher-api-handler | ✅ Updated (hodler) |" >> $GITHUB_STEP_SUMMARY
+          echo "| API Gateway (prod) | ✅ Deployed |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Triggered by:** ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch:** hodler 🪙" >> $GITHUB_STEP_SUMMARY
+
+  # ════════════════════════════════════════════════════════════════════════════
+  integration-test:
+    name: API Integration Tests (Hodler)
+    runs-on: ubuntu-latest
+    environment: hodler
+    needs: deploy
+    if: github.ref == 'refs/heads/hodler'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Fetch secrets from Doppler
+        uses: dopplerhq/secrets-fetch-action@v1.3.0
+        with:
+          doppler-token: ${{ secrets.DOPPLER_TOKEN }}
+          inject-env-vars: true
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install test dependencies
+        run: pip install pytest requests
+
+      - name: Wait for API Gateway to stabilise
+        run: sleep 10
+
+      - name: Run API integration tests (hodler)
+        env:
+          APIGW_REST_API_ID: ${{ env.APIGW_REST_API_ID }}
+        run: pytest backend/tests/test_api_hodler.py -v --tb=short
+
+      - name: Test summary
+        if: always()
+        run: |
+          echo "## 🧪 Hodler Integration Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ job.status }}" = "success" ]; then
+            echo "✅ All hodler API tests passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Some tests failed — check the logs above" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**API Base URL:** https://\${{ env.APIGW_REST_API_ID }}.execute-api.ap-northeast-1.amazonaws.com/prod" >> $GITHUB_STEP_SUMMARY
