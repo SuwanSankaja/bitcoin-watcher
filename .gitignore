@@ -107,3 +107,10 @@ local.properties
 # Documentation Backups
 *.md.backup
 *.md.old
+
+# Doppler
+.doppler-token
+/tmp/.bitcoin_watcher_flutter.env
+
+# Local env (use Doppler instead)
+.env
