@@ -14,6 +14,7 @@ on:
     paths:
       - 'backend/lambda/**'
       - 'backend/requirements.txt'
+      - 'backend/tests/**'
 
 jobs:
   deploy:
@@ -157,22 +158,8 @@ jobs:
             echo "ℹ️  Bucket $BUCKET does not exist, skipping cleanup."
           fi
 
-      # ── 11. Smoke test ─────────────────────────────────────────────────────
-      - name: Smoke test /currentPrice
-        run: |
-          sleep 5  # give API Gateway a moment
-          RESPONSE=$(curl -sf \
-            "https://${{ env.APIGW_REST_API_ID }}.execute-api.ap-northeast-1.amazonaws.com/prod/currentPrice")
-          echo "✅ API response: $RESPONSE"
-          # Verify it has the expected 'price' key
-          echo "$RESPONSE" | python3 -c "
-          import sys, json
-          data = json.load(sys.stdin)
-          assert 'price' in data, 'Missing price key in response'
-          print(f'BTC price: \${data[\"price\"][\"price\"]:,.0f}')
-          "
 
-      # ── 12. Summary ────────────────────────────────────────────────────────
+      # ── 11. Summary ────────────────────────────────────────────────────────
       - name: Deployment summary
         if: success()
         run: |
@@ -187,3 +174,50 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
           echo "**Triggered by:** ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+
+  # ════════════════════════════════════════════════════════════════════════════
+  integration-test:
+    name: API Integration Tests
+    runs-on: ubuntu-latest
+    environment: prod
+    needs: deploy  # runs only after deploy succeeds
+    if: github.ref == 'refs/heads/prod'  # skip on PRs
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Fetch secrets from Doppler
+        uses: dopplerhq/secrets-fetch-action@v1.3.0
+        with:
+          doppler-token: ${{ secrets.DOPPLER_TOKEN }}
+          inject-env-vars: true
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install test dependencies
+        run: pip install pytest requests
+
+      - name: Wait for API Gateway to stabilise
+        run: sleep 10
+
+      - name: Run API integration tests
+        env:
+          APIGW_REST_API_ID: ${{ env.APIGW_REST_API_ID }}
+        run: pytest backend/tests/test_api.py -v --tb=short
+
+      - name: Test summary
+        if: always()
+        run: |
+          echo "## 🧪 Integration Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ job.status }}" = "success" ]; then
+            echo "✅ All API tests passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Some tests failed — check the logs above" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**API Base URL:** https://\${{ env.APIGW_REST_API_ID }}.execute-api.ap-northeast-1.amazonaws.com/prod" >> $GITHUB_STEP_SUMMARY
