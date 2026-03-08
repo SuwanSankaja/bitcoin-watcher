@@ -128,7 +128,82 @@ jobs:
             echo "✅ $fn is ready"
           done
 
-      # ── 9. Re-deploy API Gateway ──────────────────────────────────────────────
+      # ── 9. Ensure /portfolio API Gateway resource exists ─────────────────────
+      - name: Ensure /portfolio API Gateway route
+        run: |
+          REST_API_ID="${{ env.APIGW_REST_API_ID }}"
+          REGION="ap-northeast-1"
+          ACCT_ID="${{ env.AWS_ACCOUNT_ID }}"
+          LAMBDA_ARN="arn:aws:lambda:${REGION}:${ACCT_ID}:function:bitcoin-watcher-api-handler"
+
+          # Get the root resource ID
+          ROOT_ID=$(aws apigateway get-resources \
+            --rest-api-id "$REST_API_ID" \
+            --region "$REGION" \
+            --query "items[?path=='/'].id" \
+            --output text)
+
+          # Check if /portfolio resource already exists
+          PORTFOLIO_ID=$(aws apigateway get-resources \
+            --rest-api-id "$REST_API_ID" \
+            --region "$REGION" \
+            --query "items[?path=='/portfolio'].id" \
+            --output text)
+
+          if [ -z "$PORTFOLIO_ID" ] || [ "$PORTFOLIO_ID" = "None" ]; then
+            echo "📎 Creating /portfolio resource..."
+            PORTFOLIO_ID=$(aws apigateway create-resource \
+              --rest-api-id "$REST_API_ID" \
+              --region "$REGION" \
+              --parent-id "$ROOT_ID" \
+              --path-part "portfolio" \
+              --output text --query 'id')
+            echo "✅ Created resource: $PORTFOLIO_ID"
+          else
+            echo "ℹ️  /portfolio resource already exists: $PORTFOLIO_ID"
+          fi
+
+          # Check if GET method exists on /portfolio
+          METHOD_EXISTS=$(aws apigateway get-method \
+            --rest-api-id "$REST_API_ID" \
+            --region "$REGION" \
+            --resource-id "$PORTFOLIO_ID" \
+            --http-method GET 2>/dev/null && echo "yes" || echo "no")
+
+          if [ "$METHOD_EXISTS" = "no" ]; then
+            echo "📎 Creating GET method on /portfolio..."
+            aws apigateway put-method \
+              --rest-api-id "$REST_API_ID" \
+              --region "$REGION" \
+              --resource-id "$PORTFOLIO_ID" \
+              --http-method GET \
+              --authorization-type NONE
+
+            aws apigateway put-integration \
+              --rest-api-id "$REST_API_ID" \
+              --region "$REGION" \
+              --resource-id "$PORTFOLIO_ID" \
+              --http-method GET \
+              --type AWS_PROXY \
+              --integration-http-method POST \
+              --uri "arn:aws:apigateway:${REGION}:lambda:path/2015-03-31/functions/${LAMBDA_ARN}/invocations"
+
+            # Grant API Gateway permission to invoke the Lambda
+            aws lambda add-permission \
+              --function-name bitcoin-watcher-api-handler \
+              --region "$REGION" \
+              --statement-id "apigw-portfolio-get-$(date +%s)" \
+              --action lambda:InvokeFunction \
+              --principal apigateway.amazonaws.com \
+              --source-arn "arn:aws:execute-api:${REGION}:${ACCT_ID}:${REST_API_ID}/*/GET/portfolio" \
+              2>/dev/null || echo "ℹ️  Permission already exists"
+
+            echo "✅ GET /portfolio method created and integrated"
+          else
+            echo "ℹ️  GET method already exists on /portfolio"
+          fi
+
+      # ── 10. Re-deploy API Gateway ─────────────────────────────────────────────
       - name: Re-deploy API Gateway (prod stage)
         run: |
           DEPLOYMENT_ID=$(aws apigateway create-deployment \
