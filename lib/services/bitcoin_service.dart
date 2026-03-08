@@ -39,6 +39,19 @@ class BitcoinService {
     }
   }
 
+  /// Fetch trades history (filled + failed)
+  Future<List<TradeItem>> getTradesHistory({int limit = 50}) async {
+    try {
+      final response = await _apiClient.get(
+        '${ApiConfig.tradesHistoryEndpoint}?limit=$limit',
+      );
+      final List<dynamic> trades = response['trades'] ?? [];
+      return trades.map((json) => TradeItem.fromJson(json)).toList();
+    } catch (e) {
+      throw ApiException('Failed to fetch trades history: $e');
+    }
+  }
+
   /// Fetch signal/notification history
   Future<List<NotificationItem>> getSignalHistory({int limit = 50}) async {
     try {

@@ -167,6 +167,76 @@ def get_signal_history(limit=50):
             'body': json.dumps({'message': 'Internal server error', 'error': str(e)})
         }
 
+def get_trades_history(limit=50):
+    """Get trades history (filled trades + failed trades), merged and sorted by date"""
+    try:
+        client = get_mongo_client()
+        db = client['bitcoin_watcher']
+
+        filled = list(db['trades'].find(
+            {},
+            {'_id': 1, 'timestamp': 1, 'signal_id': 1, 'side': 1, 'symbol': 1,
+             'executed_qty': 1, 'average_price': 1, 'signal_price': 1,
+             'signal_confidence': 1, 'status': 1}
+        ).sort('timestamp', -1).limit(limit))
+
+        failed = list(db['failed_trades'].find(
+            {},
+            {'_id': 1, 'timestamp': 1, 'signal_id': 1, 'signal_type': 1,
+             'signal_price': 1, 'error': 1}
+        ).sort('timestamp', -1).limit(limit))
+
+        client.close()
+
+        formatted = []
+
+        for t in filled:
+            formatted.append({
+                '_id': str(t['_id']),
+                'timestamp': t['timestamp'].isoformat(),
+                'signal_id': t.get('signal_id', ''),
+                'side': t.get('side', ''),
+                'symbol': t.get('symbol', 'BTCUSDT'),
+                'executed_qty': t.get('executed_qty', 0),
+                'average_price': t.get('average_price', 0),
+                'signal_price': t.get('signal_price', 0),
+                'signal_confidence': t.get('signal_confidence', 0),
+                'status': t.get('status', 'FILLED'),
+                'error': None,
+            })
+
+        for t in failed:
+            formatted.append({
+                '_id': str(t['_id']),
+                'timestamp': t['timestamp'].isoformat(),
+                'signal_id': t.get('signal_id', ''),
+                'side': t.get('signal_type', ''),
+                'symbol': 'BTCUSDT',
+                'executed_qty': 0,
+                'average_price': 0,
+                'signal_price': t.get('signal_price', 0),
+                'signal_confidence': 0,
+                'status': 'FAILED',
+                'error': t.get('error', 'Unknown error'),
+            })
+
+        formatted.sort(key=lambda x: x['timestamp'], reverse=True)
+        formatted = formatted[:limit]
+
+        return {
+            'statusCode': 200,
+            'headers': cors_headers(),
+            'body': json.dumps({'trades': formatted})
+        }
+    except Exception as e:
+        print(f"Error in get_trades_history: {e}")
+        return {
+            'statusCode': 500,
+            'headers': cors_headers(),
+            'body': json.dumps({'message': 'Internal server error', 'error': str(e)})
+        }
+
+
 def get_settings():
     """Get user settings from MongoDB or return defaults"""
     try:
@@ -290,7 +360,11 @@ def lambda_handler(event, context):
         elif path == '/signalHistory' and method == 'GET':
             limit = int(query_params.get('limit', 50))
             return get_signal_history(limit)
-        
+
+        elif path == '/tradesHistory' and method == 'GET':
+            limit = int(query_params.get('limit', 50))
+            return get_trades_history(limit)
+
         elif path == '/settings' and method == 'GET':
             return get_settings()
         

@@ -76,7 +76,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Signal History'),
+        title: const Text('Signals'),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh_rounded, size: 22),
