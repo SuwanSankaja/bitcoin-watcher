@@ -114,3 +114,4 @@ local.properties
 
 # Local env (use Doppler instead)
 .env
+backend/lambda/backend.zip
