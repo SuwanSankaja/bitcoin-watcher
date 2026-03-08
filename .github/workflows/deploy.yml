@@ -149,7 +149,13 @@ jobs:
       - name: Cleanup S3 bucket
         if: always()
         run: |
-          aws s3 rb "s3://${{ env.DEPLOY_BUCKET }}" --force || true
+          BUCKET="bitcoin-watcher-deploy-${{ env.AWS_ACCOUNT_ID }}-ap-northeast-1"
+          if aws s3 ls "s3://$BUCKET" 2>/dev/null; then
+            aws s3 rb "s3://$BUCKET" --force
+            echo "✅ Cleaned up S3 bucket: $BUCKET"
+          else
+            echo "ℹ️  Bucket $BUCKET does not exist, skipping cleanup."
+          fi
 
       # ── 11. Smoke test ─────────────────────────────────────────────────────
       - name: Smoke test /currentPrice
