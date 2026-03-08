@@ -177,7 +177,7 @@ def get_trades_history(limit=50):
             {},
             {'_id': 1, 'timestamp': 1, 'signal_id': 1, 'side': 1, 'symbol': 1,
              'executed_qty': 1, 'average_price': 1, 'signal_price': 1,
-             'signal_confidence': 1, 'status': 1}
+             'signal_confidence': 1, 'status': 1, 'btc_balance_after': 1}
         ).sort('timestamp', -1).limit(limit))
 
         failed = list(db['failed_trades'].find(
@@ -202,6 +202,7 @@ def get_trades_history(limit=50):
                 'signal_price': t.get('signal_price', 0),
                 'signal_confidence': t.get('signal_confidence', 0),
                 'status': t.get('status', 'FILLED'),
+                'btc_balance_after': t.get('btc_balance_after'),
                 'error': None,
             })
 

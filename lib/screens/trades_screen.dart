@@ -592,6 +592,11 @@ class _TradesScreenState extends State<TradesScreen>
                       _divider(),
                       _detailRow('Quantity',
                           '${trade.executedQty.toStringAsFixed(6)} BTC'),
+                      if (trade.btcBalanceAfter != null) ...[
+                        _divider(),
+                        _detailRow('BTC Balance After',
+                            '${trade.btcBalanceAfter!.toStringAsFixed(6)} BTC'),
+                      ],
                       _divider(),
                       _detailRow('Notional Value',
                           Formatters.formatPrice(trade.notionalValue)),

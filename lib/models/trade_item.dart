@@ -15,6 +15,7 @@ class TradeItem {
   final String status; // 'FILLED' or 'FAILED'
   final String? errorMessage;
   final String signalId;
+  final double? btcBalanceAfter;
 
   TradeItem({
     required this.id,
@@ -28,6 +29,7 @@ class TradeItem {
     required this.status,
     this.errorMessage,
     required this.signalId,
+    this.btcBalanceAfter,
   });
 
   bool get isBuy => side.toUpperCase() == 'BUY';
@@ -53,6 +55,7 @@ class TradeItem {
       status: json['status'] ?? TradeStatus.failed,
       errorMessage: json['error'],
       signalId: json['signal_id']?.toString() ?? '',
+      btcBalanceAfter: (json['btc_balance_after'] as num?)?.toDouble(),
     );
   }
 }

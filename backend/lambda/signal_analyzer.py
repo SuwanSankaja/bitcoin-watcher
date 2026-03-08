@@ -328,7 +328,15 @@ def execute_trade(signal_data, signal_id, settings):
 
         # Store trade in database
         if trade_result:
-            store_trade(trade_result, signal_id, signal_data)
+            # Fetch BTC balance after trade execution
+            btc_balance_after = None
+            try:
+                balance = trader.get_balance('BTC')
+                btc_balance_after = float(balance['free'])
+            except Exception as bal_err:
+                print(f"Could not fetch BTC balance after trade: {bal_err}")
+
+            store_trade(trade_result, signal_id, signal_data, btc_balance_after)
             print(f"✅ Trade executed and stored: {signal_data['type']}")
 
         return trade_result
@@ -340,7 +348,7 @@ def execute_trade(signal_data, signal_id, settings):
         return None
 
 
-def store_trade(trade_result, signal_id, signal_data):
+def store_trade(trade_result, signal_id, signal_data, btc_balance_after=None):
     """Store successful trade in MongoDB"""
     try:
         client = get_mongo_client()
@@ -372,7 +380,8 @@ def store_trade(trade_result, signal_id, signal_data):
             'average_price': avg_price,
             'signal_price': signal_data.get('price'),
             'signal_confidence': signal_data.get('confidence'),
-            'fills': fills
+            'fills': fills,
+            'btc_balance_after': btc_balance_after
         }
 
         result = collection.insert_one(trade_doc)
