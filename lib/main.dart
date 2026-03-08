@@ -101,17 +101,6 @@ class _MainNavigatorState extends State<MainNavigator> {
               width: 1,
             ),
           ),
-          NavigationDestination(
-            icon: Icon(Icons.history_outlined),
-            selectedIcon: Icon(Icons.history),
-            label: 'History',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.settings_outlined),
-            selectedIcon: Icon(Icons.settings),
-            label: 'Settings',
-          ),
-        ],
         ),
         child: NavigationBar(
           selectedIndex: _currentIndex,
